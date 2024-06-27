@@ -1,7 +1,12 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+	const router = useRouter();
+
 	return (
 		<>
 			<nav className="blue border-gray-200 ">
@@ -45,6 +50,9 @@ export default function Navbar() {
 					<div className="flex items-center space-x-6 rtl:space-x-reverse">
 						<button
 							type="button"
+							onClick={() => {
+								router.push("/Singin");
+							}}
 							class="text-gray-900 light hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 hover:text-white">
 							Sing In
 						</button>
@@ -64,7 +72,9 @@ export default function Navbar() {
 								</Link>
 							</li>
 							<li>
-								<Link href="/Services" className="text-gray-900  hover:underline">
+								<Link
+									href="/Services"
+									className="text-gray-900  hover:underline">
 									Services
 								</Link>
 							</li>
