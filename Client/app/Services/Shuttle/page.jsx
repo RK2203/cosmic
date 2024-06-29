@@ -6,24 +6,7 @@ import { BiSortAlt2 } from "react-icons/bi";
 
 export default function Shuttle() {
 	const [shuttles, setShuttles] = useState([]);
-
-	function timeToMinutes(timeStr) {
-		if (!timeStr) return 0;
-
-		const timeParts = timeStr.split(/[.:]/);
-		let hours = parseInt(timeParts[0]);
-		let minutes = parseInt(timeParts[1]);
-		const modifier = timeParts[2];
-
-		if (isNaN(hours) || isNaN(minutes)) {
-			return 0;
-		}
-
-		if (modifier === "PM" && hours !== 12) hours += 12;
-		if (modifier === "AM" && hours === 12) hours = 0;
-
-		return hours * 60 + minutes;
-	}
+	const [dest, setdest] = useState(null);
 
 	function getCurrentTime() {
 		const now = new Date();
@@ -38,16 +21,6 @@ export default function Shuttle() {
 	}
 
 	const currentTime = getCurrentTime();
-	const currentMinutes = timeToMinutes(currentTime);
-
-	const morningStart = timeToMinutes("10.00 AM");
-	const morningEnd = timeToMinutes("1.00 PM");
-	const eveningStart = timeToMinutes("3.00 PM");
-	const eveningEnd = timeToMinutes("8.00 PM");
-
-	function isWithinRange(time, start, end) {
-		return time >= start && time <= end;
-	}
 
 	const fetchShuttles = () => {
 		if (navigator.geolocation) {
@@ -55,6 +28,7 @@ export default function Shuttle() {
 				const loc = {
 					lat: position.coords.latitude,
 					long: position.coords.longitude,
+					time: currentTime,
 				};
 
 				try {
@@ -67,49 +41,56 @@ export default function Shuttle() {
 							},
 							body: JSON.stringify(loc),
 							// body: JSON.stringify({
-							// 	lat: 22.57481149046102,
-							// 	long: 88.46586582831961,
-							// // }),
+							// 	lat: 22.540668530875582,
+							// 	long: 88.33169105928287,
+							// 	time: "10:10 AM",
+							// }),
 							// body: JSON.stringify({
 							// 	lat: 22.579348721922962,
-							// 	long:  88.46970675308098
+							// 	long: 88.46970675308098,
+							// 	time:"10:10 AM",
 							// }),
 						}
 					);
 
-					if (!response.ok) {
-						throw new Error("Failed to fetch shuttle data.");
-					}
-
 					const data = await response.json();
 
-					const filteredData = await data.filter((item) => {
-						const itemTime = timeToMinutes(item.Time);
-
-						if (
-							isWithinRange(currentMinutes, morningStart, morningEnd) &&
-							isWithinRange(itemTime, morningStart, morningEnd)
-						) {
-							return (
-								currentMinutes <= itemTime && item.Data.Starting == item.Name
-							);
-						}
-						if (
-							isWithinRange(currentMinutes, eveningStart, eveningEnd) &&
-							isWithinRange(itemTime, eveningStart, eveningEnd)
-						) {
-							return (
-								currentMinutes <= itemTime && item.Data.Starting == item.Name
-							);
-						}
-					});
-
-					setShuttles(filteredData);
+					setShuttles(data);
 				} catch (error) {
 					console.error("Error fetching shuttle data:", error);
 				}
 			});
 		}
+	};
+
+	const fetchSearch = async (e) => {
+		e.preventDefault();
+
+		const fromData = new FormData(e.target);
+
+		const data = Object.fromEntries(fromData.entries());
+
+		await fetch("http://localhost:8000/Shuttles/search", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				start: data.start,
+				dest: data.dest,
+				time: "3:00 PM",
+			}),
+		})
+			.then((res) => {
+				return res.json();
+			})
+			.then((res) => {
+				setdest(data.dest);
+				setShuttles(res);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 
 	useEffect(() => {
@@ -118,11 +99,12 @@ export default function Shuttle() {
 
 	return (
 		<div>
-			<form className="max-w-sm mx-auto mt-20">
+			<form className="max-w-sm mx-auto mt-20" onSubmit={fetchSearch}>
 				<div className="mb-5">
 					<input
 						type="text"
 						id="from"
+						name="start"
 						className="light border border-gray-900 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
 						placeholder="From"
 						required
@@ -135,6 +117,7 @@ export default function Shuttle() {
 					<input
 						type="text"
 						id="to"
+						name="dest"
 						className="light border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
 						placeholder="Destination"
 						required
@@ -164,6 +147,15 @@ export default function Shuttle() {
 						<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
 							Pick up at {item.Name} @ {item.Time}
 						</p>
+						{!dest ? (
+							<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+								Drops at {item.Data.Destination} @ {item.ArrivalTime}
+							</p>
+						) : (
+							<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+								Drops at {dest} @ {item.ArrivalTime}
+							</p>
+						)}
 						<p className="font-bold text-white">Rs {item.Data.Fare}/-</p>
 					</div>
 				))}
