@@ -81,6 +81,9 @@ export default function page() {
 				.confirm(otp)
 				.then((res) => {
 					console.log(res.user.uid);
+					res.user.getIdToken().then((res)=>{
+						console.log(res);
+					})
 				})
 				.catch((err) => {
 					console.log(err);

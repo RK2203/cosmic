@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 import shuttle from "./Routes/Shuttles.js";
+import users from "./Routes/User.js";
 import mongoose from "mongoose";
 import cors from "cors";
 
@@ -29,6 +30,7 @@ connectDB()
 	});
 
 app.use("/Shuttles", shuttle);
+app.use("/Users", users);
 
 app.get("/", (req, res) => {
 	res.send("Hello World!");
