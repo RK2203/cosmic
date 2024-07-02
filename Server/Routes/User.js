@@ -1,27 +1,47 @@
 import express from "express";
 import Users from "../Schemas/User_schema.js";
+import { initializeApp, applicationDefault } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+
 import admin from "firebase-admin";
-import credentials from "../credentials.json" assert { type: "json" };
+
+import cred from "../credentials.json" assert { type: "json" };
 
 const router = express.Router();
 
-admin.initializeApp({
-	credential: admin.credential.cert(credentials),
+const app = admin.initializeApp({
+	credential: admin.credential.cert(cred),
 });
 
-router.post("/adduser", async (req, res) => {
+const auth = getAuth(app);
+
+router.post("/adduser/:uid", async (req, res) => {
 	try {
-		const { name, email, phone, uid, token } = req.body;
+		const { token } = req.headers;
+		const { uid } = req.params;
 
-		const newuser = new Users({
-			Name: name,
-			Email: email,
-			Phone: phone,
-			UID: uid,
-			Shuttles: null,
-		});
+		console.log(uid);
 
-		await newuser.save();
+		let user;
+
+		try {
+			user = await auth.verifyIdToken(token);
+		} catch (error) {
+			return res.json({ msg: "Invalid user" }).status(401);
+		}
+
+		const isSaved = await Users.findOne({ UID: user.uid });
+
+		if (!isSaved) {
+			const newuser = new Users({
+				Name: null,
+				Email: null,
+				Phone: user.phone_number,
+				UID: user.uid,
+				Shuttles: null,
+			});
+			await newuser.save();
+		}
 		res.json({ msg: "Successfully signed in" });
 	} catch (error) {
 		res.json({ msg: "Internal server error" });

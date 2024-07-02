@@ -7,15 +7,19 @@ import {
 	signInWithPhoneNumber,
 } from "firebase/auth";
 import { useEffect, useRef, useState } from "react";
+import { redirect, useRouter } from "next/navigation";
 
 export default function page() {
 	const [conf, setconf] = useState(null);
 	const [otp, setotp] = useState(null);
 	const otpref = useRef(null);
 	const auth = getAuth(app);
+	const router = useRouter();
 
 	const getOtp = (e) => {
 		e.preventDefault();
+		otpref.current.setAttribute("hidden", true);
+
 		const formData = new FormData(e.target);
 		const data = Object.fromEntries(formData.entries());
 
@@ -52,16 +56,6 @@ export default function page() {
 						).then((confirmationResult) => {
 							window.confirmationResult = confirmationResult;
 
-							// if (!otp) {
-							// 	confirmationResult
-							// 		.confirm(otp)
-							// 		.then((res) => {
-							// 			console.log(res.user);
-							// 		})
-							// 		.catch((err) => {
-							// 			console.log(err);
-							// 		});
-							// }
 							setconf(confirmationResult);
 						});
 
@@ -80,10 +74,25 @@ export default function page() {
 			conf
 				.confirm(otp)
 				.then((res) => {
-					console.log(res.user.uid);
-					res.user.getIdToken().then((res)=>{
-						console.log(res);
-					})
+					res.user.getIdToken().then((token) => {
+						fetch(`http://localhost:8000/Users/adduser/${res.user.uid}`, {
+							method: "POST",
+							headers: {
+								token: token,
+								"Content-Type": "application/json",
+							},
+						})
+							.then((res) => {
+								return res.json();
+							})
+							.then((res) => {
+								console.log(res);
+								router.push("/Account/User");
+							})
+							.catch((err) => {
+								console.log(err);
+							});
+					});
 				})
 				.catch((err) => {
 					console.log(err);

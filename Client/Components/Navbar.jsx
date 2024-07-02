@@ -5,10 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+
 	const router = useRouter();
 
+	
+
 	return (
-		<nav className="sticky top-0">
+		<nav className="sticky top-0 z-50">
 			<nav className="blue border-gray-200 ">
 				<div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
 					<a
@@ -51,11 +54,19 @@ export default function Navbar() {
 						<button
 							type="button"
 							onClick={() => {
-								router.push("/Singin");
+								router.push("/Signin");
 							}}
 							class="text-gray-900 light hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 hover:text-white">
 							Sing In
 						</button>
+						<img
+							onClick={() => {
+								router.push("/Account/User");
+							}}
+							className="h-12 w-12 rounded-full"
+							src="https://placehold.co/96x96"
+							alt=""
+						/>
 					</div>
 				</div>
 			</nav>

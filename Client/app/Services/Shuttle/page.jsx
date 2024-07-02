@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import { BiSortAlt2 } from "react-icons/bi";
@@ -8,6 +9,12 @@ export default function Shuttle() {
 	const [shuttles, setShuttles] = useState([]);
 	const [dest, setdest] = useState(null);
 
+	const router = useRouter();
+
+	const book = (shut) => {
+		const params = new URLSearchParams(shut).toString();
+		router.push(`/Services/Shuttle/${shut.Data.Code}?${params}`);
+	};
 	function getCurrentTime() {
 		const now = new Date();
 		let hours = now.getHours();
@@ -28,7 +35,7 @@ export default function Shuttle() {
 				const loc = {
 					lat: position.coords.latitude,
 					long: position.coords.longitude,
-					time: currentTime,
+					time: "10:23 AM",
 				};
 
 				try {
@@ -78,7 +85,7 @@ export default function Shuttle() {
 			body: JSON.stringify({
 				start: data.start,
 				dest: data.dest,
-				time: "3:00 PM",
+				time: "10:00 AM",
 			}),
 		})
 			.then((res) => {
@@ -137,6 +144,9 @@ export default function Shuttle() {
 				{shuttles.map((item, index) => (
 					<div
 						key={index}
+						onClick={() => {
+							book(item);
+						}}
 						className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
 						<div className="flex justify-between">
 							<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">

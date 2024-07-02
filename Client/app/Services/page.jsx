@@ -1,6 +1,10 @@
-import React from "react";
+"use client";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 export default function Services() {
+	const router = useRouter();
+
 	return (
 		<div>
 			<div className="flex justify-center mt-10">
