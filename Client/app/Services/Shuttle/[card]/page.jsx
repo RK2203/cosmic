@@ -1,19 +1,16 @@
-'use client'
+"use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
-export default function page({params}) {
-	const router = useRouter();
-
-
-	console.log(router);
-	
-	console.log(params);
-
+export default function page({ params }) {
+	const param = useSearchParams();
 
 	return (
 		<div class="p-6 bg-card text-card-foreground rounded-lg shadow-md relative my-20 light mx-20">
+			<div className=" flex justify-center">
+				<h2 class=" font-semibold mb-4 text-2xl">Shuttle no {params.card}</h2>
+			</div>
 			<h2 class="text-lg font-semibold mb-4">Trip details</h2>
 			<div class="space-y-2">
 				<div class="flex items-center ml-6">
@@ -26,7 +23,7 @@ export default function page({params}) {
 				</div>
 				<div class="flex items-center ml-6">
 					<div class="w-2 h-2 bg-black rounded-full mr-2"></div>
-					<span>₹0.00</span>
+					<span>₹{param.get("fare")}</span>
 				</div>
 			</div>
 			<hr class="my-6 border-muted" />
@@ -35,19 +32,16 @@ export default function page({params}) {
 				<div class="flex justify-between items-start">
 					<div class="flex items-center">
 						<div class="w-4 h-4 bg-primary rounded-full mr-2"></div>
-						<span>
-							Street Number 372, CC Block(Newtown), AA II, Newtown, New Town,
-							West Bengal 700135, India
-						</span>
+						<span>{param.get("start")}</span>
 					</div>
-					<span>5:58 PM</span>
+					<span> {param.get("startTime")}</span>
 				</div>
 				<div class="flex justify-between items-start">
 					<div class="flex items-center">
 						<div class="w-4 h-4 bg-primary rounded-full mr-2"></div>
-						<span>Danesh Sheikh Lane, Howrah, West Bengal, India</span>
+						<span> {param.get("dest")}</span>
 					</div>
-					<span>7:27 PM</span>
+					<span> {param.get("destTime")}</span>
 				</div>
 				<h2 class="text-lg font-semibold mb-4">Payment methods</h2>
 				<div class="space-y-2">

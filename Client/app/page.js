@@ -1,9 +1,32 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import app from "@/Firebase";
+import { useDispatch } from "react-redux";
+import { update } from "@/Redux/Authenticator";
+import { useEffect } from "react";
+
+const auth = getAuth(app);
 
 export default function Home() {
 	const router = useRouter();
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		function getUser() {
+			onAuthStateChanged(auth, (user) => {
+				if (user) {
+					dispatch(update(JSON.stringify(user)));
+				} else {
+					dispatch(update(null));
+				}
+			});
+		}
+
+		return () => getUser();
+	}, []);
+
 	return (
 		<div>
 			<div className="flex justify-center mt-10">

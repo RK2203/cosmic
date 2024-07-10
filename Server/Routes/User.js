@@ -18,9 +18,8 @@ const auth = getAuth(app);
 router.post("/adduser/:uid", async (req, res) => {
 	try {
 		const { token } = req.headers;
-		const { uid } = req.params;
-
-		console.log(uid);
+		
+		
 
 		let user;
 

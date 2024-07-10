@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense, useMemo } from "react";
 
 import { BiSortAlt2 } from "react-icons/bi";
 
@@ -11,9 +11,18 @@ export default function Shuttle() {
 
 	const router = useRouter();
 
-	const book = (shut) => {
-		const params = new URLSearchParams(shut).toString();
-		router.push(`/Services/Shuttle/${shut.Data.Code}?${params}`);
+	const book = (code, fare, start, startTime, dest, destTime) => {
+		const details = {
+			code: code,
+			fare: fare,
+			start: start,
+			startTime: startTime,
+			dest: dest,
+			destTime: destTime,
+		};
+
+		const params = new URLSearchParams(details).toString();
+		router.push(`/Services/Shuttle/${code}?${params}`);
 	};
 	function getCurrentTime() {
 		const now = new Date();
@@ -46,12 +55,12 @@ export default function Shuttle() {
 							headers: {
 								"Content-Type": "application/json",
 							},
-							body: JSON.stringify(loc),
-							// body: JSON.stringify({
-							// 	lat: 22.540668530875582,
-							// 	long: 88.33169105928287,
-							// 	time: "10:10 AM",
-							// }),
+							// body: JSON.stringify(loc),
+							body: JSON.stringify({
+								lat: 22.540668530875582,
+								long: 88.33169105928287,
+								time: "10:10 AM",
+							}),
 							// body: JSON.stringify({
 							// 	lat: 22.579348721922962,
 							// 	long: 88.46970675308098,
@@ -104,6 +113,47 @@ export default function Shuttle() {
 		fetchShuttles();
 	}, []);
 
+	const memoizedData = useMemo(() => {
+		return shuttles.map((item, index) => (
+			<Suspense
+				fallback={<p className="text-black">Loading.....</p>}
+				key={index}>
+				<div
+					onClick={() => {
+						book(
+							item.Data.Code,
+							item.Data.Fare,
+							item.Name,
+							item.Time,
+							!dest ? item.Data.Destination : dest,
+							item.ArrivalTime
+						);
+					}}
+					className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+					<div className="flex justify-between">
+						<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+							{item.Data.Starting} → {item.Data.Destination}
+						</h5>
+						<p className="text-white font-bold">{item.Data.Code}</p>
+					</div>
+					<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+						Pick up at {item.Name} @ {item.Time}
+					</p>
+					{!dest ? (
+						<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+							Drops at {item.Data.Destination} @ {item.ArrivalTime}
+						</p>
+					) : (
+						<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+							Drops at {dest} @ {item.ArrivalTime}
+						</p>
+					)}
+					<p className="font-bold text-white">Rs {item.Data.Fare}/-</p>
+				</div>
+			</Suspense>
+		));
+	}, [shuttles]);
+
 	return (
 		<div>
 			<form className="max-w-sm mx-auto mt-20" onSubmit={fetchSearch}>
@@ -140,36 +190,7 @@ export default function Shuttle() {
 			</form>
 
 			{/* Display filtered shuttles */}
-			<div className="grid grid-cols-3 gap-5 mx-10 my-10">
-				{shuttles.map((item, index) => (
-					<div
-						key={index}
-						onClick={() => {
-							book(item);
-						}}
-						className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-						<div className="flex justify-between">
-							<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-								{item.Data.Starting} → {item.Data.Destination}
-							</h5>
-							<p className="text-white font-bold">{item.Data.Code}</p>
-						</div>
-						<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-							Pick up at {item.Name} @ {item.Time}
-						</p>
-						{!dest ? (
-							<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-								Drops at {item.Data.Destination} @ {item.ArrivalTime}
-							</p>
-						) : (
-							<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-								Drops at {dest} @ {item.ArrivalTime}
-							</p>
-						)}
-						<p className="font-bold text-white">Rs {item.Data.Fare}/-</p>
-					</div>
-				))}
-			</div>
+			<div className="grid grid-cols-3 gap-5 mx-10 my-10">{memoizedData}</div>
 		</div>
 	);
 }

@@ -3,12 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 export default function Navbar() {
-
 	const router = useRouter();
-
-	
+	const user = useSelector((state) => state.auth.user);
 
 	return (
 		<nav className="sticky top-0 z-50">
@@ -51,22 +50,30 @@ export default function Navbar() {
 						/>
 					</div>
 					<div className="flex items-center space-x-6 rtl:space-x-reverse">
-						<button
-							type="button"
-							onClick={() => {
-								router.push("/Signin");
-							}}
-							class="text-gray-900 light hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 hover:text-white">
-							Sing In
-						</button>
-						<img
-							onClick={() => {
-								router.push("/Account/User");
-							}}
-							className="h-12 w-12 rounded-full"
-							src="https://placehold.co/96x96"
-							alt=""
-						/>
+						{!user ? (
+							<button
+								type="button"
+								onClick={() => {
+									router.push("/Signin");
+								}}
+								class="text-gray-900 light hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 hover:text-white">
+								Sing In
+							</button>
+						) : (
+							<div></div>
+						)}
+						{user ? (
+							<img
+								onClick={() => {
+									router.push("/Account/User");
+								}}
+								className="h-12 w-12 rounded-full"
+								src="https://placehold.co/96x96"
+								alt=""
+							/>
+						) : (
+							<div></div>
+						)}
 					</div>
 				</div>
 			</nav>

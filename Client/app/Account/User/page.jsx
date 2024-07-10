@@ -2,15 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import { FaCamera } from "react-icons/fa";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import app from "../../../Firebase";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { signOut, getAuth } from "firebase/auth";
+import app from "@/Firebase";
+
 const auth = getAuth(app);
 
 export default function user() {
-	const [user, setuser] = useState(null);
-	const [loading, setloading] = useState(true);
+	const [det, setdet] = useState(null);
+
+	const user = useSelector((state) => state.auth.user);
 
 	const router = useRouter();
 
@@ -18,7 +21,7 @@ export default function user() {
 		signOut(auth)
 			.then(() => {
 				console.log("Logged out");
-				router.push("/Account/User");
+				router.push("/");
 			})
 			.catch((err) => {
 				console.log(err);
@@ -26,27 +29,13 @@ export default function user() {
 	};
 
 	useEffect(() => {
-		function getUser() {
-			onAuthStateChanged(auth, (user) => {
-				if (user) {
-					setuser(user);
-				} else {
-					setuser(null);
-				}
-				setloading(false);
-			});
+		if (!user) {
+			redirect("/Signin");
 		}
 
-		return () => getUser();
+		setdet(user);
 	}, []);
 
-	if (loading) {
-		return null;
-	}
-
-	if (!user) {
-		redirect("/Signin");
-	}
 	return (
 		<div class="flex flex-col lg:flex-row min-h-screen bg-background text-foreground">
 			<div class="w-full lg:w-1/4 bg-muted border-r-2 p-4">
@@ -54,7 +43,9 @@ export default function user() {
 					<li class="text-primary font-semibold">Menu</li>
 					<li>Security</li>
 					<li>Privacy & Data</li>
-					<li onClick={logout}>Log Out</li>
+					<li onClick={logout} className="cursor-default">
+						Log Out
+					</li>
 				</ul>
 			</div>
 			<div class="w-full lg:w-3/4 p-8">
@@ -82,7 +73,7 @@ export default function user() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Phone number</h3>
 							<p>
-								{user ? user.reloadUserInfo.phoneNumber : "Loading..."}{" "}
+								{det ? det.phoneNumber : "Loading..."}{" "}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>

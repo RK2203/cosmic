@@ -90,34 +90,82 @@ router.post("/getspot", async (req, res) => {
 
 		const finalData = [];
 
+		// for (const result of results) {
+		// 	const stopageName = result.Name;
+
+		// 	const shuttles = result.Shuttles;
+
+		// 	for (const shuttleObj of shuttles) {
+		// 		const key = Object.keys(shuttleObj)[0];
+		// 		const time = shuttleObj[key];
+
+		// 		const mongoData = await Shuttles.findOne({ Code: key });
+
+		// 		const dest = await Stopages.findOne({ Name: mongoData.Destination });
+
+		// 		const arr = dest.Shuttles;
+
+		// 		const want = arr.find(
+		// 			(item) => Object.keys(item)[0] === mongoData.Code
+		// 		);
+
+		// 		if (mongoData) {
+		// 			const newObj = {
+		// 				Name: stopageName,
+		// 				Data: mongoData,
+		// 				Time: time,
+		// 				ArrivalTime: want[mongoData.Code],
+		// 			};
+
+		// 			finalData.push(newObj);
+		// 		}
+		// 	}
+		// }
+
+		// // Fetch all shuttle codes from results to reduce repeated calls
+		const shuttleCodes = results.flatMap((result) =>
+			result.Shuttles.map((shuttleObj) => Object.keys(shuttleObj)[0])
+		);
+
+		
+		// Fetch all shuttles and destinations in parallel
+		const shuttlesPromise = Shuttles.find({ Code: { $in: shuttleCodes } });
+
+		const stopagesPromise = Stopages.find();
+
+		// Wait for both promises to resolve
+		const [shuttlesData, stopagesData] = await Promise.all([
+			shuttlesPromise,
+			stopagesPromise,
+		]);
+
 		for (const result of results) {
 			const stopageName = result.Name;
-
 			const shuttles = result.Shuttles;
 
 			for (const shuttleObj of shuttles) {
 				const key = Object.keys(shuttleObj)[0];
 				const time = shuttleObj[key];
 
-				const mongoData = await Shuttles.findOne({ Code: key });
-
-				const dest = await Stopages.findOne({ Name: mongoData.Destination });
-
-				const arr = dest.Shuttles;
-
-				const want = arr.find(
-					(item) => Object.keys(item)[0] === mongoData.Code
-				);
-
+				const mongoData = shuttlesData.find((data) => data.Code === key);
 				if (mongoData) {
-					const newObj = {
-						Name: stopageName,
-						Data: mongoData,
-						Time: time,
-						ArrivalTime: want[mongoData.Code],
-					};
-
-					finalData.push(newObj);
+					const dest = stopagesData.find(
+						(stopage) => stopage.Name === mongoData.Destination
+					);
+					if (dest) {
+						const want = dest.Shuttles.find(
+							(item) => Object.keys(item)[0] === mongoData.Code
+						);
+						if (want) {
+							const newObj = {
+								Name: stopageName,
+								Data: mongoData,
+								Time: time,
+								ArrivalTime: want[mongoData.Code],
+							};
+							finalData.push(newObj);
+						}
+					}
 				}
 			}
 		}
