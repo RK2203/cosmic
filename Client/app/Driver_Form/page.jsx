@@ -1,10 +1,17 @@
 "use client";
 
-import React from "react";
-import { useSelector } from "react-redux";
+import { authContext } from "@/Context/Auth";
+import { update } from "@/Redux/Authenticator";
+import { redirect, useRouter } from "next/navigation";
+import React, { useContext, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function page() {
-	const user = JSON.parse(useSelector((state) => state.auth.user));
+	const userr = JSON.parse(useSelector((state) => state.auth.user));
+	const { user, loading, role } = useContext(authContext);
+
+	const dispatch = useDispatch();
+	const router = useRouter();
 
 	const submit = async (e) => {
 		e.preventDefault();
@@ -13,7 +20,35 @@ export default function page() {
 
 		const data = Object.fromEntries(formData.entries());
 
+		await fetch("http://localhost:8000/Drivers/updatedriver", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				uid: userr.UID,
+			},
+			body: JSON.stringify(data),
+		})
+			.then((res) => {
+				return res.json();
+			})
+			.then((res) => {
+				dispatch(update(JSON.stringify(res)));
+				router.push(`/${role}_Driver`);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
+
+	useEffect(() => {
+		if (loading) return;
+		if (!user) {
+			redirect("/");
+		}
+		if (role == "Rider") {
+			redirect("/");
+		}
+	}, [user, role, loading]);
 
 	return (
 		<div>

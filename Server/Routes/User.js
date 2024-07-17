@@ -1,10 +1,9 @@
 import express from "express";
 import Users from "../Schemas/User_schema.js";
-import { initializeApp, applicationDefault } from "firebase-admin/app";
+
 import { getAuth } from "firebase-admin/auth";
 
 import admin from "firebase-admin";
-
 import cred from "../credentials.json" assert { type: "json" };
 
 const router = express.Router();
@@ -18,8 +17,6 @@ const auth = getAuth(app);
 router.post("/adduser/:uid", async (req, res) => {
 	try {
 		const { token } = req.headers;
-		
-		
 
 		let user;
 
@@ -28,6 +25,18 @@ router.post("/adduser/:uid", async (req, res) => {
 		} catch (error) {
 			return res.json({ msg: "Invalid user" }).status(401);
 		}
+
+		admin
+			.auth()
+			.setCustomUserClaims(user.uid, {
+				role: "Rider",
+			})
+			.then(() => {
+				console.log("saved");
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 
 		const isSaved = await Users.findOne({ UID: user.uid });
 
@@ -41,7 +50,9 @@ router.post("/adduser/:uid", async (req, res) => {
 			});
 			await newuser.save();
 		}
-		res.json({ msg: "Successfully signed in" });
+		const det = await Users.findOne({ UID: user.uid });
+
+		res.json(det);
 	} catch (error) {
 		res.json({ msg: "Internal server error" });
 	}

@@ -9,7 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { set } from "@/Redux/Driver_Reducer";
+import { update } from "@/Redux/Authenticator";
 
 export default function page() {
 	const [conf, setconf] = useState(null);
@@ -18,7 +18,6 @@ export default function page() {
 	const otpref = useRef(null);
 	const auth = getAuth(app);
 	const router = useRouter();
-
 	const dispatch = useDispatch();
 
 	const getOtp = (e) => {
@@ -81,6 +80,7 @@ export default function page() {
 			conf
 				.confirm(otp)
 				.then((res) => {
+					const user = res.user;
 					res.user.getIdToken().then((token) => {
 						fetch(`http://localhost:8000/Drivers/adddriv`, {
 							method: "POST",
@@ -94,7 +94,8 @@ export default function page() {
 								return res.json();
 							})
 							.then((res) => {
-								dispatch(set(true));
+								dispatch(update(JSON.stringify(res)));
+
 								router.push("/Driver_Form");
 							})
 							.catch((err) => {

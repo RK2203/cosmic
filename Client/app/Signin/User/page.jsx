@@ -6,8 +6,11 @@ import {
 	RecaptchaVerifier,
 	signInWithPhoneNumber,
 } from "firebase/auth";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { authContext } from "@/Context/Auth";
+import { useDispatch } from "react-redux";
+import { update } from "@/Redux/Authenticator";
 
 export default function page() {
 	const [conf, setconf] = useState(null);
@@ -15,6 +18,7 @@ export default function page() {
 	const otpref = useRef(null);
 	const auth = getAuth(app);
 	const router = useRouter();
+	const dispatch = useDispatch();
 
 	const getOtp = (e) => {
 		e.preventDefault();
@@ -86,8 +90,8 @@ export default function page() {
 								return res.json();
 							})
 							.then((res) => {
-								console.log(res);
-								router.push("/Account/User");
+								dispatch(update(JSON.stringify(res)));
+								router.push("/Account");
 							})
 							.catch((err) => {
 								console.log(err);

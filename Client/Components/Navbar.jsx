@@ -1,13 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import { authContext } from "@/Context/Auth";
 
 export default function Navbar() {
 	const router = useRouter();
-	const user = useSelector((state) => state.auth.user);
+	const { user, loading } = useContext(authContext);
 
 	return (
 		<nav className="sticky top-0 z-50">
@@ -65,7 +66,7 @@ export default function Navbar() {
 						{user ? (
 							<img
 								onClick={() => {
-									router.push("/Account/User");
+									router.push("/Account");
 								}}
 								className="h-12 w-12 rounded-full"
 								src="https://placehold.co/96x96"

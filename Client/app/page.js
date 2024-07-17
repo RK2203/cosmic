@@ -1,31 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import app from "@/Firebase";
-import { useDispatch } from "react-redux";
-import { update } from "@/Redux/Authenticator";
-import { useEffect } from "react";
-
-const auth = getAuth(app);
+import { useContext, useEffect } from "react";
+import { authContext } from "@/Context/Auth";
 
 export default function Home() {
 	const router = useRouter();
-	const dispatch = useDispatch();
+
+	const { user, loading, role } = useContext(authContext);
+	
+	console.log(role);
 
 	useEffect(() => {
-		function getUser() {
-			onAuthStateChanged(auth, (user) => {
-				if (user) {
-					dispatch(update(JSON.stringify(user)));
-				} else {
-					dispatch(update(null));
-				}
-			});
+		if (loading) return;
+		if (role && role != "Rider") {
+			router.replace(`${role}_Driver`);
 		}
-
-		return () => getUser();
-	}, []);
+	}, [user, loading, role]);
 
 	return (
 		<div>

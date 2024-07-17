@@ -122,22 +122,19 @@ router.post("/getspot", async (req, res) => {
 		// 	}
 		// }
 
-		// // Fetch all shuttle codes from results to reduce repeated calls
 		const shuttleCodes = results.flatMap((result) =>
 			result.Shuttles.map((shuttleObj) => Object.keys(shuttleObj)[0])
 		);
 
-		
-		// Fetch all shuttles and destinations in parallel
 		const shuttlesPromise = Shuttles.find({ Code: { $in: shuttleCodes } });
 
 		const stopagesPromise = Stopages.find();
 
-		// Wait for both promises to resolve
 		const [shuttlesData, stopagesData] = await Promise.all([
 			shuttlesPromise,
 			stopagesPromise,
 		]);
+
 
 		for (const result of results) {
 			const stopageName = result.Name;
