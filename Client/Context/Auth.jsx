@@ -1,5 +1,10 @@
-import { createContext, useEffect, useState } from "react";
-import { onAuthStateChanged, getAuth } from "firebase/auth";
+import { createContext, useContext, useEffect, useState } from "react";
+import {
+	onAuthStateChanged,
+	getAuth,
+	GoogleAuthProvider,
+	signInWithPopup,
+} from "firebase/auth";
 import app from "@/Firebase";
 
 const auth = getAuth(app);

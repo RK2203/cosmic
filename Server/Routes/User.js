@@ -14,7 +14,7 @@ const app = admin.initializeApp({
 
 const auth = getAuth(app);
 
-router.post("/adduser/:uid", async (req, res) => {
+router.post("/adduser/", async (req, res) => {
 	try {
 		const { token } = req.headers;
 

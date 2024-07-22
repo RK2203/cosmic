@@ -9,11 +9,9 @@ const shuttleDriverSchema = new Schema({
 
 	Car_No: String,
 
-	Shutttle_No: String,
+	Shuttle_No: String,
 
 	UID: String,
-
-	Passengers: Array,
 });
 
 mongoose.models = {};

@@ -5,7 +5,7 @@ import { FaCamera } from "react-icons/fa";
 import { signOut, getAuth } from "firebase/auth";
 import app from "@/Firebase";
 import { update } from "@/Redux/Authenticator";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 const auth = getAuth(app);
 
@@ -19,7 +19,7 @@ export default function page() {
 		signOut(auth)
 			.then(() => {
 				dispatch(update(null));
-				router.push("/Signin");
+				redirect("/Signin");
 			})
 			.catch((err) => {
 				console.log(err);

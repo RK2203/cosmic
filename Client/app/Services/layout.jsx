@@ -9,13 +9,19 @@ export default function RootLayout({ children }) {
 	const { user, loading, role } = useContext(authContext);
 
 	useEffect(() => {
-		if (!user) {
-			redirect("/Signin");
-		}
-		if (role !== "Rider") {
-			router.replace(`${role}_Driver`);
+		if (!loading) {
+			if (!user) {
+				redirect("/Signin");
+			}
+			if (role !== "Rider") {
+				redirect(`/${role}_Driver`);
+			}
 		}
 	}, [loading]);
+
+	if (loading) {
+		return <div>Loading...</div>;
+	}
 
 	return <>{children}</>;
 }

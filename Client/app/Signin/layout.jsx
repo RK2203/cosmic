@@ -1,9 +1,9 @@
 "use client";
 import { authContext } from "@/Context/Auth";
-import { useRouter } from "next/navigation";
-import React, { useContext, useEffect } from "react";
+import { redirect, useRouter } from "next/navigation";
+import React, { useContext, useEffect, useState } from "react";
 
-export default function layout({ children }) {
+export default function Layout({ children }) {
 	const { user, loading, role } = useContext(authContext);
 	const router = useRouter();
 
@@ -11,14 +11,17 @@ export default function layout({ children }) {
 		if (!loading) {
 			if (user) {
 				if (role !== "Rider") {
-					router.replace(`${role}_Driver`);
+					redirect(`/${role}_Driver`);
+				} else {
+					redirect("/");
 				}
-				router.replace("/");
 			}
 		}
 	}, [loading, user, role, router]);
 
-	if (!loading) {
-		return <>{children}</>;
+	if (loading) {
+		return <div>Loading...</div>;
 	}
+
+	return <>{children}</>;
 }

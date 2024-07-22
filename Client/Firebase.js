@@ -8,9 +8,8 @@ const firebaseConfig = {
 	storageBucket: "cosmic-13139.appspot.com",
 	messagingSenderId: "817111836740",
 	appId: "1:817111836740:web:748105bd9de5f9fcaef411",
-	measurementId: "G-214B5GF3DS",
-};
-
+	measurementId: "G-214B5GF3DS"
+  };
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 

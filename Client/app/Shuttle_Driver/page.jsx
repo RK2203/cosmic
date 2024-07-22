@@ -57,7 +57,7 @@ export default function page() {
 					<div class="flex flex-col lg:flex-row justify-between items-center border-b border-muted pb-4">
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Name</h3>
-							<p>{user.Name ? user.Name : "Change your name"}</p>
+							<p>{user && user.Name ? user.Name : "Change your name"}</p>
 						</div>
 						<span class="text-muted-foreground"></span>
 					</div>
@@ -65,7 +65,7 @@ export default function page() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Phone number</h3>
 							<p>
-								{user.Phone}
+								{user && user.Phone}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>
@@ -75,7 +75,7 @@ export default function page() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Email</h3>
 							<p>
-								{user.Email ? user.Email : "Change your Email"}{" "}
+								{user && user.Email ? user.Email : "Change your Email"}{" "}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>

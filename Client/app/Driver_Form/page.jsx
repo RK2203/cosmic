@@ -41,14 +41,19 @@ export default function page() {
 	};
 
 	useEffect(() => {
-		if (loading) return;
-		if (!user) {
-			redirect("/");
-		}
-		if (role == "Rider") {
-			redirect("/");
+		if (!loading) {
+			if (!user) {
+				redirect("/");
+			}
+			if (role == "Rider") {
+				redirect("/");
+			}
 		}
 	}, [user, role, loading]);
+
+	if (loading) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<div>

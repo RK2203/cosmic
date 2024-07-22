@@ -22,5 +22,9 @@ export default function layout({ children }) {
 			}
 		}
 	}, [loading, user, role]);
+
+	if (loading) {
+		return <div>Loading...</div>;
+	}
 	return <>{children}</>;
 }

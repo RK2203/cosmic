@@ -66,6 +66,44 @@ router.post("/addSpot", async (req, res) => {
 	}
 });
 
+function timeToMinutes(timeStr) {
+	if (!timeStr) return 0;
+
+	const normalizedTimeStr = timeStr.replace(".", ":").toUpperCase();
+
+	const [time, modifier] = normalizedTimeStr.split(" ");
+
+	const [hoursStr, minutesStr] = time.split(":");
+	let hours = parseInt(hoursStr, 10);
+	let minutes = parseInt(minutesStr, 10);
+
+	if (isNaN(hours) || isNaN(minutes)) {
+		return 0;
+	}
+
+	if (modifier === "PM" && hours !== 12) hours += 12;
+	if (modifier === "AM" && hours === 12) hours = 0;
+
+	return hours * 60 + minutes;
+}
+
+function calculateDistance(lat1, long1, lat2, long2) {
+	const R = 6371e3;
+	const φ1 = (lat1 * Math.PI) / 180;
+	const φ2 = (lat2 * Math.PI) / 180;
+	const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+	const Δλ = ((long2 - long1) * Math.PI) / 180;
+
+	const x =
+		Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+		Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+	const cc = 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+
+	const d = R * cc;
+
+	return d;
+}
+
 router.post("/getspot", async (req, res) => {
 	try {
 		const { lat, long, time } = req.body;
@@ -88,159 +126,84 @@ router.post("/getspot", async (req, res) => {
 			return res.status(404).json({ message: "No stopages found nearby" });
 		}
 
-		const finalData = [];
-
-		// for (const result of results) {
-		// 	const stopageName = result.Name;
-
-		// 	const shuttles = result.Shuttles;
-
-		// 	for (const shuttleObj of shuttles) {
-		// 		const key = Object.keys(shuttleObj)[0];
-		// 		const time = shuttleObj[key];
-
-		// 		const mongoData = await Shuttles.findOne({ Code: key });
-
-		// 		const dest = await Stopages.findOne({ Name: mongoData.Destination });
-
-		// 		const arr = dest.Shuttles;
-
-		// 		const want = arr.find(
-		// 			(item) => Object.keys(item)[0] === mongoData.Code
-		// 		);
-
-		// 		if (mongoData) {
-		// 			const newObj = {
-		// 				Name: stopageName,
-		// 				Data: mongoData,
-		// 				Time: time,
-		// 				ArrivalTime: want[mongoData.Code],
-		// 			};
-
-		// 			finalData.push(newObj);
-		// 		}
-		// 	}
-		// }
-
 		const shuttleCodes = results.flatMap((result) =>
 			result.Shuttles.map((shuttleObj) => Object.keys(shuttleObj)[0])
 		);
 
-		const shuttlesPromise = Shuttles.find({ Code: { $in: shuttleCodes } });
-
-		const stopagesPromise = Stopages.find();
-
 		const [shuttlesData, stopagesData] = await Promise.all([
-			shuttlesPromise,
-			stopagesPromise,
+			Shuttles.find({ Code: { $in: shuttleCodes } }),
+			Stopages.find(),
 		]);
 
-
-		for (const result of results) {
+		const finalData = results.flatMap((result) => {
 			const stopageName = result.Name;
-			const shuttles = result.Shuttles;
-
-			for (const shuttleObj of shuttles) {
+			return result.Shuttles.map((shuttleObj) => {
 				const key = Object.keys(shuttleObj)[0];
 				const time = shuttleObj[key];
-
 				const mongoData = shuttlesData.find((data) => data.Code === key);
 				if (mongoData) {
 					const dest = stopagesData.find(
 						(stopage) => stopage.Name === mongoData.Destination
 					);
 					if (dest) {
-						const want = dest.Shuttles.find(
+						const arrivalTimeObj = dest.Shuttles.find(
 							(item) => Object.keys(item)[0] === mongoData.Code
 						);
-						if (want) {
-							const newObj = {
+						if (arrivalTimeObj) {
+							return {
 								Name: stopageName,
 								Data: mongoData,
 								Time: time,
-								ArrivalTime: want[mongoData.Code],
+								ArrivalTime: arrivalTimeObj[mongoData.Code],
 							};
-							finalData.push(newObj);
 						}
 					}
 				}
-			}
-		}
-
-		function timeToMinutes(timeStr) {
-			if (!timeStr) return 0;
-
-			const normalizedTimeStr = timeStr.replace(".", ":").toUpperCase();
-
-			const [time, modifier] = normalizedTimeStr.split(" ");
-
-			const [hoursStr, minutesStr] = time.split(":");
-			let hours = parseInt(hoursStr, 10);
-			let minutes = parseInt(minutesStr, 10);
-
-			if (isNaN(hours) || isNaN(minutes)) {
-				return 0;
-			}
-
-			if (modifier === "PM" && hours !== 12) hours += 12;
-			if (modifier === "AM" && hours === 12) hours = 0;
-
-			return hours * 60 + minutes;
-		}
+				return null;
+			}).filter(Boolean);
+		});
 
 		const currentTime = timeToMinutes(time);
-		async function filterData(data) {
+
+		const filterData = async (data) => {
 			const dataWithDistances = await Promise.all(
 				data.map(async (item) => {
-					const a = await Stopages.findOne({ Name: item.Name });
-					const b = await Stopages.findOne({ Name: item.Data.Starting });
-					const c = await Stopages.findOne({ Name: item.Data.Destination });
+					const startStopage = stopagesData.find(
+						(stopage) => stopage.Name === item.Data.Starting
+					);
+					const destStopage = stopagesData.find(
+						(stopage) => stopage.Name === item.Data.Destination
+					);
 
-					const lat1 = a.location.coordinates[0];
-					const long1 = a.location.coordinates[1];
-					const lat2 = b.location.coordinates[0];
-					const long2 = b.location.coordinates[1];
-					const lat3 = c.location.coordinates[0];
-					const long3 = c.location.coordinates[1];
+					const spotStopage = await Stopages.findOne({ Name: item.Name });
 
-					function calculateDistance(lat1, long1, lat2, long2) {
-						const R = 6371e3;
-						const φ1 = (lat1 * Math.PI) / 180;
-						const φ2 = (lat2 * Math.PI) / 180;
-						const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-						const Δλ = ((long2 - long1) * Math.PI) / 180;
+					const spottostart = calculateDistance(
+						spotStopage.location.coordinates[0],
+						spotStopage.location.coordinates[1],
+						startStopage.location.coordinates[0],
+						startStopage.location.coordinates[1]
+					);
+					const spottodest = calculateDistance(
+						spotStopage.location.coordinates[0],
+						spotStopage.location.coordinates[1],
+						destStopage.location.coordinates[0],
+						destStopage.location.coordinates[1]
+					);
 
-						const x =
-							Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-							Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-						const cc = 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+					const valid = spottostart < spottodest;
+					const itemTime = timeToMinutes(item.Time);
 
-						const d = R * cc;
-
-						return d;
-					}
-
-					const spottostart = calculateDistance(lat1, long1, lat2, long2);
-					const spottodest = calculateDistance(lat1, long1, lat3, long3);
-
-					let valid = false;
-
-					if (spottostart < spottodest) {
-						valid = true;
-					}
-
-					const time = timeToMinutes(item.Time);
-
-					return { item, time, valid };
+					return { item, itemTime, valid };
 				})
 			);
 
 			return dataWithDistances
-				.filter(({ time, valid }) => valid && time > currentTime)
+				.filter(({ itemTime, valid }) => valid && itemTime > currentTime)
 				.map(({ item }) => item);
-		}
+		};
 
 		const filteredData = await filterData(finalData);
+		console.log(filteredData.length);
 
 		res.json(filteredData);
 	} catch (error) {

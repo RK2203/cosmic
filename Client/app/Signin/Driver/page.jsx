@@ -58,14 +58,18 @@ export default function page() {
 							auth,
 							cleanedPhoneNumber,
 							window.recaptchaVerifier
-						).then((confirmationResult) => {
-							window.confirmationResult = confirmationResult;
+						)
+							.then((confirmationResult) => {
+								window.confirmationResult = confirmationResult;
 
-							setconf(confirmationResult);
-							setkey(key);
-						});
-
-						otpref.current.removeAttribute("hidden");
+								setconf(confirmationResult);
+								setkey(key);
+								otpref.current.removeAttribute("hidden");
+							})
+							.catch((err) => {
+								
+								console.log(err);
+							});
 					},
 					"expired-callback": () => {},
 				}
