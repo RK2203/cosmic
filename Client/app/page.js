@@ -2,20 +2,12 @@
 
 import { redirect, useRouter } from "next/navigation";
 import { Suspense, useContext, useEffect } from "react";
-import { authContext } from "@/Context/Auth";
+import { authContext, useAuth } from "@/Context/Auth";
 
 export default function Home() {
 	const router = useRouter();
 
-	const { user, loading, role } = useContext(authContext);
-
-	useEffect(() => {
-		if (!loading) {
-			if (role && role != "Rider") {
-				redirect(`/${role}_Driver`);
-			}
-		}
-	}, [user, loading, role]);
+	const { user, loading, role } = useAuth();
 
 	if (loading) {
 		return <div>Loading...</div>;

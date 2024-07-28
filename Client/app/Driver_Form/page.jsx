@@ -2,13 +2,29 @@
 
 import { authContext } from "@/Context/Auth";
 import { update } from "@/Redux/Authenticator";
+import { gql, useMutation } from "@apollo/client";
 import { redirect, useRouter } from "next/navigation";
 import React, { useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import app from "@/Firebase";
+import { getDatabase, set, ref } from "firebase/database";
+
+const db = getDatabase(app);
 
 export default function page() {
-	const userr = JSON.parse(useSelector((state) => state.auth.user));
+	const query = gql`
+		mutation adddriver(
+			$uid: String!
+			$name: String!
+			$email: String!
+			$car: String!
+			$key: String!
+		) {
+			addDriver(uid: $uid, name: $name, email: $email, car: $car, key: $key)
+		}
+	`;
 	const { user, loading, role } = useContext(authContext);
+	const [addDriver, { data, _, error }] = useMutation(query);
 
 	const dispatch = useDispatch();
 	const router = useRouter();
@@ -20,36 +36,29 @@ export default function page() {
 
 		const data = Object.fromEntries(formData.entries());
 
-		await fetch("http://localhost:8000/Drivers/updatedriver", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				uid: userr.UID,
-			},
-			body: JSON.stringify(data),
-		})
-			.then((res) => {
-				return res.json();
-			})
-			.then((res) => {
-				dispatch(update(JSON.stringify(res)));
-				router.push(`/${role}_Driver`);
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-	};
+		const { name, key, car } = data;
 
-	useEffect(() => {
-		if (!loading) {
-			if (!user) {
-				redirect("/");
-			}
-			if (role == "Rider") {
-				redirect("/");
-			}
+		const res = await addDriver({
+			variables: {
+				uid: user.uid,
+				name,
+				email: user.email,
+				car,
+				key,
+			},
+		});
+
+		try {
+			set(ref(db, "Roles/" + user.uid), {
+				Role: key,
+			});
+		} catch (error) {
+			console.log(error);
 		}
-	}, [user, role, loading]);
+
+		console.log(res);
+		router.push(`/${role}_Driver`);
+	};
 
 	if (loading) {
 		return <div>Loading...</div>;
@@ -74,8 +83,8 @@ export default function page() {
 				</div>
 				<div class="relative z-0 w-full mb-5 group">
 					<input
-						type="email"
-						name="email"
+						type="text"
+						name="key"
 						class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-black  appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
 						placeholder=" "
 						required
@@ -83,7 +92,7 @@ export default function page() {
 					<label
 						for="floating_email"
 						class="peer-focus:font-medium absolute text-sm text-gray-900  duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
-						Email address
+						Enter your key
 					</label>
 				</div>
 				<div class="relative z-0 w-full mb-5 group">

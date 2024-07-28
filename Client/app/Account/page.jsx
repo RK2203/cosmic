@@ -2,26 +2,54 @@
 
 import React, { useContext, useEffect, useState } from "react";
 import { FaCamera } from "react-icons/fa";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { signOut, getAuth } from "firebase/auth";
 import app from "@/Firebase";
 import { update } from "@/Redux/Authenticator";
-import { authContext } from "@/Context/Auth";
+import { authContext, useAuth } from "@/Context/Auth";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 
 const auth = getAuth(app);
 
 export default function user() {
-	const userr = JSON.parse(useSelector((state) => state.auth.user));
-	const { user, loading, role } = useContext(authContext);
+	const query = gql`
+		query getuser($uid: ID!) {
+			getUser(uid: $uid) {
+				Name
+				Email
+			}
+		}
+	`;
 
-	const dispatch = useDispatch();
+	const logoutQuery = gql`
+		mutation LogOut {
+			logout
+		}
+	`;
+	const { user, loading, role } = useAuth();
+	const [getUser, { data, _, error }] = useLazyQuery(query);
+	const [logout] = useMutation(logoutQuery);
+	const [det, setDet] = useState(null);
+	const router = useRouter();
 
-	const logout = () => {
+	const getData = async () => {
+		if (user) {
+			console.log(user.uid);
+			const res = await getUser({
+				variables: {
+					uid: user.uid,
+				},
+			});
+		}
+	};
+
+	const logOut = () => {
 		signOut(auth)
-			.then(() => {
-				dispatch(update(null));
-				redirect("/");
+			.then(async () => {
+				const res = await logout();
+				console.log(res);
+				router.replace("/");
 			})
 			.catch((err) => {
 				console.log(err);
@@ -29,15 +57,8 @@ export default function user() {
 	};
 
 	useEffect(() => {
-		if (!loading) {
-			if (!user) {
-				redirect("/");
-			}
-			if (role != "Rider") {
-				redirect(`/${role}_Driver`);
-			}
-		}
-	}, [loading, user, role]);
+		getData();
+	}, [user]);
 
 	return (
 		<div class="flex flex-col lg:flex-row min-h-screen bg-background text-foreground">
@@ -46,7 +67,7 @@ export default function user() {
 					<li class="text-primary font-semibold">Menu</li>
 					<li>Security</li>
 					<li>Privacy & Data</li>
-					<li onClick={logout} className="cursor-default">
+					<li onClick={logOut} className="cursor-default">
 						Log Out
 					</li>
 				</ul>
@@ -68,7 +89,7 @@ export default function user() {
 					<div class="flex flex-col lg:flex-row justify-between items-center border-b border-muted pb-4">
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Name</h3>
-							<p>{userr.Name ? userr.Name : "Set your name..."}</p>
+							{/* <p>{userr && userr.Name ? userr.Name : "Set your name..."}</p> */}
 						</div>
 						<span class="text-muted-foreground"></span>
 					</div>
@@ -76,7 +97,7 @@ export default function user() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Phone number</h3>
 							<p>
-								{userr.Phone ? userr.Phone : "Add phone number"}{" "}
+								{/* {userr && userr.Phone ? userr.Phone : "Add phone number"}{" "} */}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>
@@ -86,7 +107,7 @@ export default function user() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Email</h3>
 							<p>
-								{userr.Email ? userr.Email : "Add email"}{" "}
+								{/* {userr && userr.Email ? userr.Email : "Add email"}{" "} */}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>

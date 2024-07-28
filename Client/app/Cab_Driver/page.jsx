@@ -1,29 +1,42 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaCamera } from "react-icons/fa";
 import { signOut, getAuth } from "firebase/auth";
 import app from "@/Firebase";
 import { update } from "@/Redux/Authenticator";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
+import { authContext } from "@/Context/Auth";
 
 const auth = getAuth(app);
 
 export default function page() {
-	const user = JSON.parse(useSelector((state) => state.auth.user));
-
 	const dispatch = useDispatch();
-    const router = useRouter()
+	const router = useRouter();
+	const { user, loading } = useContext(authContext);
+	const [driver, setDriver] = useState(null);
 
-	const logout = () => {
-		signOut(auth)
-			.then(() => {
-				dispatch(update(null));
-				redirect("/Signin");
-			})
-			.catch((err) => {
-				console.log(err);
-			});
+	const query = gql`
+		query getcabdriver($uid: ID!) {
+			getCabDriver(uid: $uid) {
+				Name
+				Email
+				Phone
+			}
+		}
+	`;
+
+	const [getCabDriver, { data, _, error }] = useLazyQuery(query);
+
+	const getDriver = async () => {
+		const res = await getCabDriver({
+			variables: {
+				uid: user.uid,
+			},
+		});
+
+		setDriver(res.data.getCabDriver);
 	};
 
 	return (
@@ -57,7 +70,7 @@ export default function page() {
 					<div class="flex flex-col lg:flex-row justify-between items-center border-b border-muted pb-4">
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Name</h3>
-							<p>{user.Name ? user.Name : "Change your name"}</p>
+							<p>{driver ? driver.Name : "Change your name"}</p>
 						</div>
 						<span class="text-muted-foreground"></span>
 					</div>
@@ -65,7 +78,7 @@ export default function page() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Phone number</h3>
 							<p>
-								{user.Phone}
+								{driver && driver.Phone ? driver.Phone : "Add phone number"}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>
@@ -75,7 +88,7 @@ export default function page() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Email</h3>
 							<p>
-								{user.Email ? user.Email : "Change your Email"}{" "}
+								{driver ? driver.Email : "Change your Email"}{" "}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>

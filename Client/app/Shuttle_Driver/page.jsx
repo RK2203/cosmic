@@ -1,24 +1,52 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaCamera } from "react-icons/fa";
 import { signOut, getAuth } from "firebase/auth";
 import app from "@/Firebase";
 import { update } from "@/Redux/Authenticator";
 import { useRouter } from "next/navigation";
+import { gql, useLazyQuery } from "@apollo/client";
+import { authContext } from "@/Context/Auth";
 
 const auth = getAuth(app);
 
 export default function page() {
-	const user = JSON.parse(useSelector((state) => state.auth.user));
+	const query = gql`
+		query getshutdriver($uid: ID!) {
+			getShuttleDriver(uid: $uid) {
+				Name
+				Email
+				Phone
+			}
+		}
+	`;
 
-	const dispatch = useDispatch();
+	const [driver, setDriver] = useState(null);
+	const [getShuttleDriver, { data, _, error }] = useLazyQuery(query);
+	const { user, loading ,role} = useContext(authContext);
+
 	const router = useRouter();
+
+	const getDriver = async () => {
+		const res = await getShuttleDriver({
+			variables: {
+				uid: user.uid,
+			},
+		});
+
+		setDriver(res.data.getShuttleDriver);
+	};
+
+	useEffect(() => {
+		console.log(user);
+		// getDriver();
+	}, [user, loading]);
 
 	const logout = () => {
 		signOut(auth)
 			.then(() => {
-				dispatch(update(null));
+				useDispatch(update(null));
 				router.push("/Signin");
 			})
 			.catch((err) => {

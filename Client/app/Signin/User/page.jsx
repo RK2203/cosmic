@@ -8,29 +8,30 @@ import {
 	GoogleAuthProvider,
 	signInWithPopup,
 } from "firebase/auth";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { update } from "@/Redux/Authenticator";
 import { gql, useMutation } from "@apollo/client";
+import { getDatabase, ref, set } from "firebase/database";
+import { authContext, useAuth } from "@/Context/Auth";
+
+const db = getDatabase(app);
 
 export default function page() {
 	const query = gql`
 		mutation addUser($token: String!) {
-			adduser(token: $token) {
-				Name
-				Email
-				Phone
-			}
+			adduser(token: $token)
 		}
 	`;
 	const [conf, setconf] = useState(null);
 	const [otp, setotp] = useState(null);
-	const [adduser, { data, loading, error }] = useMutation(query);
+	const [adduser, { data, _, error }] = useMutation(query);
 	const otpref = useRef(null);
 	const auth = getAuth(app);
 	const router = useRouter();
 	const dispatch = useDispatch();
+	const { loading, user, role } = useAuth();
 
 	const getOtp = (e) => {
 		e.preventDefault();
@@ -119,19 +120,34 @@ export default function page() {
 		}
 	}, [otp]);
 
-	async function googleLogin() {
+	async function Login() {
 		const provider = new GoogleAuthProvider();
 
 		await signInWithPopup(auth, provider)
 			.then(async (res) => {
 				res.user.getIdToken().then(async (token) => {
-					const response = await adduser({ variables: { token: token } });
-					dispatch(update(JSON.stringify(response.data.adduser)));
+					const response = await adduser({
+						variables: { token: token },
+					});
+					console.log(response);
+
+					try {
+						await set(ref(db, "Roles/" + res.user.uid), {
+							Role: "Rider",
+						});
+						router.push("/Account");
+					} catch (error) {
+						console.log(error);
+					}
 				});
 			})
 			.catch((err) => {
 				console.log(err);
 			});
+	}
+
+	if (loading) {
+		return <div>Loading....</div>;
 	}
 
 	return (
@@ -338,7 +354,7 @@ export default function page() {
 				</form>
 				<div className="flex justify-center mt-3">
 					<button
-						onClick={googleLogin}
+						onClick={Login}
 						class="flex items-center justify-center max-w-xs px-6 py-2 text-sm font-bold text-center text-gray-700 uppercase transition-all duration-600 ease-linear bg-white border border-gray-400 rounded-lg gap-3 hover:scale-105">
 						<svg
 							class="h-6"

@@ -1,7 +1,14 @@
+"use client";
+
+import { authContext } from "@/Context/Auth";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useContext, useEffect } from "react";
 
 export default function page() {
+	const { user, loading, role } = useContext(authContext);
+	const router = useRouter();
+
 	return (
 		<div className="flex justify-evenly mt-20">
 			<div class="max-w-sm p-6 e border border-gray-200 rounded-lg shadow blue">
@@ -10,7 +17,7 @@ export default function page() {
 						Do you want to ride?
 					</h5>
 				</a>
-				
+
 				<Link
 					href="/Signin/User"
 					class="inline-flex items-center px-3 py-2 text-sm font-medium text-center  revbut rounded-lg ">
@@ -38,7 +45,7 @@ export default function page() {
 						Do you want to drive?
 					</h5>
 				</a>
-				
+
 				<Link
 					href="/Signin/Driver"
 					class="inline-flex items-center px-3 py-2 text-sm font-medium text-center revbut rounded-lg  focus:ring-4 focus:outline-none focus:ring-blue-300">

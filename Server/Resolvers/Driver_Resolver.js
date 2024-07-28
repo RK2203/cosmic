@@ -4,7 +4,6 @@ import CabDrivers from "../Schemas/CabDriver_schema.js";
 import { getAuth } from "firebase-admin/auth";
 
 import admin from "firebase-admin";
-
 import cred from "../credentials.json" assert { type: "json" };
 
 const app = admin.initializeApp(
@@ -20,74 +19,59 @@ const driverResolver = {
 	Mutation: {
 		addDriver: async (parent, arg) => {
 			try {
-				const { token, name, car, key } = arg;
+				const { uid, name, email, car, key } = arg;
 
-				let user;
-
-				try {
-					user = await auth.verifyIdToken(token);
-				} catch (error) {
-					return {};
+				const userRecord = await auth.getUser(uid);
+				if (!userRecord) {
+					return "User not found";
 				}
 
-				function setRole(role) {
-					admin
-						.auth()
-						.setCustomUserClaims(user.uid, {
-							role: role,
-						})
-						.then(() => {
-							console.log("saved");
-						})
-						.catch((err) => {
-							console.log(err);
-						});
-				}
+				if (key === "Shuttle") {
+					const user = await ShuttleDrivers.findOne({ UID: uid });
 
-				if (key == "Shuttle") {
-					const isSaved = await ShuttleDrivers.findOne({ UID: user.uid });
-
-					if (!isSaved) {
+					if (!user) {
 						const newuser = new ShuttleDrivers({
 							Name: name,
-							Email: user.email ? user.email : null,
-							Phone: user.phone_number ? user.phone_number : null,
+							Email: email,
+							Phone: null,
 							Car_No: car,
-							UID: user.uid,
+							UID: uid,
 							Shutttle_No: null,
 						});
 						await newuser.save();
 					}
-					setRole(key);
 
-					const det = await ShuttleDrivers.findOne({ UID: user.uid });
-
-					return det;
+					return "Saved";
 				}
 
-				if (key == "Cab") {
-					const isSaved = await CabDrivers.findOne({ UID: user.uid });
+				if (key === "Cab") {
+					const user = await CabDrivers.findOne({ UID: uid });
 
-					if (!isSaved) {
+					if (!user) {
 						const newuser = new CabDrivers({
 							Name: name,
-							Email: user.email ? user.email : null,
-							Phone: user.phone_number ? user.phone_number : null,
+							Email: email,
+							Phone: null,
 							Car_No: car,
-							UID: user.uid,
+							UID: uid,
 							Trips: [],
 						});
 						await newuser.save();
 					}
 
-					setRole(key);
-					const det = await CabDrivers.findOne({ UID: user.uid });
-
-					return;
+					return "Saved";
 				}
 			} catch (error) {
-				return {};
+				return "Internal server error";
 			}
+		},
+	},
+
+	Query: {
+		getCabDriver: async (parent, arg) => {
+			const driver = CabDrivers.findOne({ UID: arg.uid });
+
+			return driver;
 		},
 	},
 };

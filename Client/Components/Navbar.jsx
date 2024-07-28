@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { authContext } from "@/Context/Auth";
+import { authContext, useAuth } from "@/Context/Auth";
 
 export default function Navbar() {
 	const router = useRouter();
-	const { user, loading } = useContext(authContext);
+	const { user } = useContext(authContext);
 
 	return (
 		<nav className="sticky top-0 z-50">

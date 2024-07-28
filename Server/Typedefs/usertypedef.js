@@ -2,10 +2,11 @@ import { gql } from "apollo-server";
 
 const userType = gql`
 	type Query {
-		getuser: [User]
+		getUser(uid: ID!): User
 	}
 	type Mutation {
-		adduser(token: String!): User
+		adduser(token: String!): String
+		logout: String
 	}
 
 	type User {

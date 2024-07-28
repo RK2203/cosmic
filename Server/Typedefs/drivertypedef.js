@@ -3,10 +3,16 @@ import { gql } from "apollo-server";
 const driverType = gql`
 	type Query {
 		getShuttleDriver(uid: ID!): Shuttle_Driver
-		addCabDriver(uid: ID!): Cab_Driver
+		getCabDriver(uid: ID!): Cab_Driver
 	}
 	type Mutation {
-		addDriver(token: String!, name: String!, car: String!, key: String!): Driver
+		addDriver(
+			uid: String!
+			name: String!
+			email: String!
+			car: String!
+			key: String!
+		): String!
 	}
 
 	type Driver {
