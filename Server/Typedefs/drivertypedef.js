@@ -7,12 +7,15 @@ const driverType = gql`
 	}
 	type Mutation {
 		addDriver(
+			token:String!
 			uid: String!
 			name: String!
 			email: String!
 			car: String!
 			key: String!
 		): String!
+
+		logout: String
 	}
 
 	type Driver {

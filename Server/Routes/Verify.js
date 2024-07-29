@@ -35,7 +35,7 @@ router.post("/verify", async (req, res) => {
 			res.json({ user: true, role: data });
 		})
 		.catch((error) => {
-			res.json({ msg: "Internal server error", err: error });
+			res.json({ user: true, role: null });
 		});
 });
 

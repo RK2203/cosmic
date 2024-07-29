@@ -6,7 +6,7 @@ import { signOut, getAuth } from "firebase/auth";
 import app from "@/Firebase";
 import { update } from "@/Redux/Authenticator";
 import { useRouter } from "next/navigation";
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { authContext } from "@/Context/Auth";
 
 const auth = getAuth(app);
@@ -22,9 +22,17 @@ export default function page() {
 		}
 	`;
 
+	const logoutQuery = gql`
+		mutation LogOut {
+			logout
+		}
+	`;
+
 	const [driver, setDriver] = useState(null);
-	const [getShuttleDriver, { data, _, error }] = useLazyQuery(query);
-	const { user, loading ,role} = useContext(authContext);
+	const [getShuttleDriver] = useLazyQuery(query);
+	const [logout] = useMutation(logoutQuery);
+
+	const { user, loading, role } = useContext(authContext);
 
 	const router = useRouter();
 
@@ -35,19 +43,23 @@ export default function page() {
 			},
 		});
 
+		console.log(res);
+
 		setDriver(res.data.getShuttleDriver);
 	};
 
 	useEffect(() => {
-		console.log(user);
-		// getDriver();
+		if (user) {
+			getDriver();
+		}
 	}, [user, loading]);
 
-	const logout = () => {
+	const logOut = () => {
 		signOut(auth)
-			.then(() => {
-				useDispatch(update(null));
-				router.push("/Signin");
+			.then(async () => {
+				const res = await logout();
+				console.log(res);
+				router.push("/");
 			})
 			.catch((err) => {
 				console.log(err);
@@ -63,7 +75,7 @@ export default function page() {
 					<li>Passengers</li>
 					<li>Security</li>
 					<li>Privacy & Data</li>
-					<li className="cursor-default" onClick={logout}>
+					<li className="cursor-default" onClick={logOut}>
 						Log Out
 					</li>
 				</ul>
@@ -85,7 +97,7 @@ export default function page() {
 					<div class="flex flex-col lg:flex-row justify-between items-center border-b border-muted pb-4">
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Name</h3>
-							<p>{user && user.Name ? user.Name : "Change your name"}</p>
+							<p>{driver && driver.Name ? driver.Name : "Change your name"}</p>
 						</div>
 						<span class="text-muted-foreground"></span>
 					</div>
@@ -93,7 +105,7 @@ export default function page() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Phone number</h3>
 							<p>
-								{user && user.Phone}
+								{driver && driver.Phone ? driver.phone : "Add phone number"}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>
@@ -103,7 +115,7 @@ export default function page() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Email</h3>
 							<p>
-								{user && user.Email ? user.Email : "Change your Email"}{" "}
+								{driver && driver.Email ? driver.Email : "Change your Email"}{" "}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>

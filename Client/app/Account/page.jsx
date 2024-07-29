@@ -18,6 +18,7 @@ export default function user() {
 			getUser(uid: $uid) {
 				Name
 				Email
+				Phone
 			}
 		}
 	`;
@@ -27,20 +28,21 @@ export default function user() {
 			logout
 		}
 	`;
-	const { user, loading, role } = useAuth();
-	const [getUser, { data, _, error }] = useLazyQuery(query);
+	const { user, loading } = useAuth();
+	const [getUser] = useLazyQuery(query);
 	const [logout] = useMutation(logoutQuery);
 	const [det, setDet] = useState(null);
 	const router = useRouter();
 
 	const getData = async () => {
 		if (user) {
-			console.log(user.uid);
 			const res = await getUser({
 				variables: {
 					uid: user.uid,
 				},
 			});
+
+			setDet(res.data.getUser);
 		}
 	};
 
@@ -58,7 +60,7 @@ export default function user() {
 
 	useEffect(() => {
 		getData();
-	}, [user]);
+	}, [user, loading]);
 
 	return (
 		<div class="flex flex-col lg:flex-row min-h-screen bg-background text-foreground">
@@ -89,7 +91,7 @@ export default function user() {
 					<div class="flex flex-col lg:flex-row justify-between items-center border-b border-muted pb-4">
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Name</h3>
-							{/* <p>{userr && userr.Name ? userr.Name : "Set your name..."}</p> */}
+							<p>{det && det.Name ? det.Name : "Set your name..."}</p>
 						</div>
 						<span class="text-muted-foreground"></span>
 					</div>
@@ -97,7 +99,7 @@ export default function user() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Phone number</h3>
 							<p>
-								{/* {userr && userr.Phone ? userr.Phone : "Add phone number"}{" "} */}
+								{det && det.Phone ? det.Phone : "Add phone number"}{" "}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>
@@ -107,7 +109,7 @@ export default function user() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Email</h3>
 							<p>
-								{/* {userr && userr.Email ? userr.Email : "Add email"}{" "} */}
+								{det && det.Email ? det.Email : "Add email"}{" "}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>

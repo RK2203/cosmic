@@ -25,7 +25,7 @@ const userResolver = {
 			}
 
 			const tokenCookie = cookie.serialize("Token", arg.token, {
-				maxAge: 9000,
+				maxAge: 10 * 365 * 24 * 60 * 60,
 				httpOnly: true,
 				secure: true,
 				sameSite: "strict",

@@ -13,6 +13,7 @@ import { redirect, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { update } from "@/Redux/Authenticator";
 import { authContext } from "@/Context/Auth";
+import { gql, useMutation } from "@apollo/client";
 
 export default function page() {
 	const [conf, setconf] = useState(null);
@@ -23,7 +24,6 @@ export default function page() {
 	const auth = getAuth(app);
 	const router = useRouter();
 	const dispatch = useDispatch();
-	const { googleLogin } = useContext(authContext);
 
 	const getOtp = (e) => {
 		e.preventDefault();
@@ -118,8 +118,19 @@ export default function page() {
 	}, [otp]);
 
 	async function Login() {
-		await googleLogin(false);
-		router.push("/Driver_Form");
+		const provider = new GoogleAuthProvider();
+
+		await signInWithPopup(auth, provider)
+			.then(async (res) => {
+				res.user.getIdToken().then(async (token) => {
+					const param = { token };
+					const params = new URLSearchParams(param).toString();
+					router.push(`/Driver_Form/?${params}`);
+				});
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
 
 	return (

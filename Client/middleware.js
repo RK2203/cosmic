@@ -37,6 +37,8 @@ export async function middleware(request) {
 		}
 	}
 
+	console.log(user);
+
 	if (path == "/") {
 		if (user) {
 			if (role != "Rider")
@@ -69,7 +71,15 @@ export async function middleware(request) {
 		} else {
 			return NextResponse.redirect(new URL("/", request.url));
 		}
-	} else if (path == "/Signin") {
+	} else if (path == "/Signin/User") {
+		if (user) {
+			if (role != "Rider") {
+				return NextResponse.redirect(new URL(`/${role}_Driver`, request.url));
+			} else {
+				return NextResponse.redirect(new URL("/", request.url));
+			}
+		}
+	} else if (path == "/Signin/Driver") {
 		if (user) {
 			if (role != "Rider") {
 				return NextResponse.redirect(new URL(`/${role}_Driver`, request.url));
@@ -87,12 +97,9 @@ export async function middleware(request) {
 		}
 	} else if (path == "/Driver_Form") {
 		if (user) {
-			if (role != "Rider") {
-				// Driver form
-				return NextResponse.redirect(new URL(`/${role}_Driver`, request.url));
+			if (role == "Rider") {
+				return NextResponse.redirect(new URL(`/`, request.url));
 			}
-		} else {
-			return NextResponse.redirect(new URL(`/`, request.url));
 		}
 	}
 }

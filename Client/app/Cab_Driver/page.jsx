@@ -1,10 +1,8 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { FaCamera } from "react-icons/fa";
 import { signOut, getAuth } from "firebase/auth";
 import app from "@/Firebase";
-import { update } from "@/Redux/Authenticator";
 import { useRouter } from "next/navigation";
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { authContext } from "@/Context/Auth";
@@ -12,7 +10,6 @@ import { authContext } from "@/Context/Auth";
 const auth = getAuth(app);
 
 export default function page() {
-	const dispatch = useDispatch();
 	const router = useRouter();
 	const { user, loading } = useContext(authContext);
 	const [driver, setDriver] = useState(null);
@@ -27,7 +24,14 @@ export default function page() {
 		}
 	`;
 
-	const [getCabDriver, { data, _, error }] = useLazyQuery(query);
+	const logoutQuery = gql`
+		mutation LogOut {
+			logout
+		}
+	`;
+
+	const [getCabDriver] = useLazyQuery(query);
+	const [logout] = useMutation(logoutQuery);
 
 	const getDriver = async () => {
 		const res = await getCabDriver({
@@ -39,6 +43,24 @@ export default function page() {
 		setDriver(res.data.getCabDriver);
 	};
 
+	const logOut = async () => {
+		signOut(auth)
+			.then(async () => {
+				const res = await logout();
+				console.log(res);
+				router.push("/");
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	};
+
+	useEffect(() => {
+		if (user && !loading) {
+			getDriver();
+		}
+	}, [user, loading]);
+
 	return (
 		<div class="flex flex-col lg:flex-row min-h-screen bg-background text-foreground">
 			<div class="w-full lg:w-1/4 bg-muted border-r-2 p-4">
@@ -48,7 +70,7 @@ export default function page() {
 					<li>Passengers</li>
 					<li>Security</li>
 					<li>Privacy & Data</li>
-					<li className="cursor-default" onClick={logout}>
+					<li className="cursor-default" onClick={logOut}>
 						Log Out
 					</li>
 				</ul>

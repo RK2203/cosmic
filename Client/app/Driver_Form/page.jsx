@@ -3,7 +3,7 @@
 import { authContext } from "@/Context/Auth";
 import { update } from "@/Redux/Authenticator";
 import { gql, useMutation } from "@apollo/client";
-import { redirect, useRouter } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import React, { useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import app from "@/Firebase";
@@ -14,20 +14,30 @@ const db = getDatabase(app);
 export default function page() {
 	const query = gql`
 		mutation adddriver(
+			$token: String!
 			$uid: String!
 			$name: String!
 			$email: String!
 			$car: String!
 			$key: String!
 		) {
-			addDriver(uid: $uid, name: $name, email: $email, car: $car, key: $key)
+			addDriver(
+				token: $token
+				uid: $uid
+				name: $name
+				email: $email
+				car: $car
+				key: $key
+			)
 		}
 	`;
 	const { user, loading, role } = useContext(authContext);
 	const [addDriver, { data, _, error }] = useMutation(query);
 
-	const dispatch = useDispatch();
 	const router = useRouter();
+
+	const param = useSearchParams();
+	const token = param.get("token");
 
 	const submit = async (e) => {
 		e.preventDefault();
@@ -40,6 +50,7 @@ export default function page() {
 
 		const res = await addDriver({
 			variables: {
+				token,
 				uid: user.uid,
 				name,
 				email: user.email,
@@ -48,16 +59,17 @@ export default function page() {
 			},
 		});
 
+		console.log(res);
+
 		try {
 			set(ref(db, "Roles/" + user.uid), {
 				Role: key,
 			});
+			router.push(`/${key}_Driver`);
 		} catch (error) {
 			console.log(error);
 		}
 
-		console.log(res);
-		router.push(`/${role}_Driver`);
 	};
 
 	if (loading) {
