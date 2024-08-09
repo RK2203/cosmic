@@ -21,6 +21,7 @@ Here're some of the project's best features:
 - Responsive Design: Optimized for performance across various devices and screen sizes.
 - Dynamic Pricing: Adaptive pricing models based on demand and availabilit
 - Scalability: Future enhancements planned to improve data management and system scalability.
+- Future plan: Future enhancements planned to improve data management and system scalability, including transitioning from MongoDB to PostgreSQL with Prisma for enhanced performance and flexibility.
 
 <h2>🛠️ Installation Steps:</h2>
 
