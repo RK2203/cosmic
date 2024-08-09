@@ -26,12 +26,12 @@ export default function RootLayout({ children }) {
 		<html lang="en">
 			<body className={inter.className}>
 				<StoreProvider>
-					<AuthProvider>
-						<ApolloProvider client={client}>
+					<ApolloProvider client={client}>
+						<AuthProvider>
 							{!showNav && <Navbar />}
 							{children}
-						</ApolloProvider>
-					</AuthProvider>
+						</AuthProvider>
+					</ApolloProvider>
 				</StoreProvider>
 			</body>
 		</html>

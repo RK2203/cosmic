@@ -18,25 +18,28 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 
 router.post("/verify", async (req, res) => {
-	let user;
 	const { token } = req.headers;
+
 	try {
-		user = await auth.verifyIdToken(token);
+		const user = await auth.verifyIdToken(token);
+		if (!user) {
+			res.json({ msg: "Unauthorized" }).status(401);
+		} else {
+			const ref = db.ref(`Roles/${user.uid}/Role`);
+
+			ref
+				.once("value")
+				.then((snapshot) => {
+					const data = snapshot.val();
+					res.json({ user: true, role: data });
+				})
+				.catch((error) => {
+					res.json({ user: true, role: null });
+				});
+		}
 	} catch (error) {
-		res.json({ msg: "Unauthorized" }).status(401);
+		res.json({ msg: "Internal Server error" }).status(500);
 	}
-
-	const ref = db.ref(`Roles/${user.uid}/Role`);
-
-	ref
-		.once("value")
-		.then((snapshot) => {
-			const data = snapshot.val();
-			res.json({ user: true, role: data });
-		})
-		.catch((error) => {
-			res.json({ user: true, role: null });
-		});
 });
 
 export default router;

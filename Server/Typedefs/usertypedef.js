@@ -7,6 +7,7 @@ const userType = gql`
 	type Mutation {
 		adduser(token: String!): String
 		logout: String
+		refresh(token: String!): String
 	}
 
 	type User {

@@ -3,14 +3,22 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import app from "@/Firebase";
+import { gql, useMutation } from "@apollo/client";
 
 const auth = getAuth(app);
 
 export const authContext = createContext(null);
 
+const query = gql`
+	mutation Refresh($token: String!) {
+		refresh(token: $token)
+	}
+`;
+
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [refresh] = useMutation(query);
 
 	useEffect(() => {
 		const unsubscribe = async () => {
@@ -18,6 +26,16 @@ export const AuthProvider = ({ children }) => {
 				if (user) {
 					setUser(user);
 					setLoading(false);
+
+					await user.getIdToken().then(async (token) => {
+						const res = await refresh({
+							variables: {
+								token,
+							},
+						});
+						console.log(res);
+						
+					});
 				} else {
 					setUser(null);
 					setLoading(false);

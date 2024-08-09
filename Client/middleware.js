@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 
+const cache = new Map();
+
 const auth = async (token) => {
+	if (cache.has(token)) {
+		return cache.get(token);
+	}
+
 	return new Promise((resolve, reject) => {
 		fetch("http://localhost:8000/auth/verify", {
 			method: "POST",
@@ -13,6 +19,7 @@ const auth = async (token) => {
 				return res.json();
 			})
 			.then((res) => {
+				cache.set(token, res);
 				resolve(res);
 			})
 			.catch((err) => {
@@ -30,14 +37,13 @@ export async function middleware(request) {
 	if (tokenCookie) {
 		try {
 			const res = await auth(tokenCookie.value);
+			
 			user = res.user;
 			role = res.role;
 		} catch (error) {
 			console.log(error);
 		}
 	}
-
-	console.log(user);
 
 	if (path == "/") {
 		if (user) {
