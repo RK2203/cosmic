@@ -18,7 +18,7 @@ export default function page({ params }) {
 					<div class="w-2 h-2 bg-black rounded-full mr-2"></div>
 					<span className="m-3">25.31 kilometers</span>
 					<div class="w-2 h-2 bg-black rounded-full mr-2"></div>
-					<span className="m-3">1 h 28 min</span>
+					<span className="m-3 ">1 h 28 min</span>
 				</div>
 
 				<div class="flex items-center ml-6">
