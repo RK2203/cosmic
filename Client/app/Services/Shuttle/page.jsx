@@ -129,7 +129,7 @@ export default function Shuttle() {
 							item.ArrivalTime
 						);
 					}}
-					className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+					className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
 					<div className="flex justify-between">
 						<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 							{item.Data.Starting} → {item.Data.Destination}
