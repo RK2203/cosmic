@@ -12,9 +12,10 @@ import driverType from "./Typedefs/drivertypedef.js";
 import driverResolver from "./Resolvers/Driver_Resolver.js";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
-import verify from "./Routes/Verify.js";
 
 dotenv.config();
+
+// Hey I am new2
 
 const app = express();
 app.use(express.json());
@@ -59,7 +60,6 @@ app.use(
 );
 
 app.use("/Shuttles", shuttle);
-app.use("/auth", verify);
 
 app.get("/", (req, res) => {
 	res.send("Hello World!");

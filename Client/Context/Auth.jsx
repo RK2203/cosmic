@@ -24,18 +24,15 @@ export const AuthProvider = ({ children }) => {
 		const unsubscribe = async () => {
 			auth.onAuthStateChanged(async (user) => {
 				if (user) {
-					setUser(user);
-					setLoading(false);
-
 					await user.getIdToken().then(async (token) => {
 						const res = await refresh({
 							variables: {
 								token,
 							},
 						});
-						console.log(res);
-						
 					});
+					setUser(user);
+					setLoading(false);
 				} else {
 					setUser(null);
 					setLoading(false);

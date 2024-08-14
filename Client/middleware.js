@@ -7,8 +7,11 @@ const auth = async (token) => {
 		return cache.get(token);
 	}
 
+
+
 	return new Promise((resolve, reject) => {
-		fetch("http://localhost:8000/auth/verify", {
+		
+		fetch("http://localhost:3000/api/Verify", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -28,12 +31,15 @@ const auth = async (token) => {
 	});
 };
 
+
+
 export async function middleware(request) {
 	const path = request.nextUrl.pathname;
 	let user = false;
 	let role = null;
 
 	const tokenCookie = request.cookies.get("Token");
+	
 	if (tokenCookie) {
 		try {
 			const res = await auth(tokenCookie.value);

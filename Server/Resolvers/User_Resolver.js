@@ -94,9 +94,25 @@ const userResolver = {
 	},
 
 	Query: {
-		getUser: async (parent, arg) => {
-			const user = await Users.findOne({ UID: arg.uid });
-			return user;
+		getUser: async (parent, arg, { req, res }) => {
+			try {
+				const resToken = req.headers.cookie;
+
+				const tokenPart = resToken.split("Token=")[1];
+
+				const token = tokenPart.split(";")[0];
+
+				const user = await auth.verifyIdToken(token);
+
+				if (user) {
+					const user = await Users.findOne({ UID: arg.uid });
+					return user;
+				} else {
+					return "Unauthorized";
+				}
+			} catch (error) {
+				return "Internal server error";
+			}
 		},
 	},
 };

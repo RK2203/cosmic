@@ -23,7 +23,12 @@ export default function Home() {
 				</div>
 				<div class="grid grid-cols-4 gap-20 mx-20 mt-24">
 					<div>
-						<img class="h-40 max-w-full rounded-lg" src="cab.avif" alt="" />
+						<img
+							class="h-40 max-w-full rounded-lg"
+							src="cab.avif"
+							alt=""
+							loading="lazy"
+						/>
 						<div className="flex justify-center mt-2 ">
 							<h1>Wanna take a ride?</h1>
 						</div>
@@ -56,11 +61,13 @@ export default function Home() {
 						<img
 							class="w-full dark:hidden"
 							src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup.svg"
+							loading="lazy"
 							alt="dashboard image"
 						/>
 						<img
 							class="w-full hidden dark:block rounded-xl"
 							src="taxi.jpg"
+							loading="lazy"
 							alt="dashboard image"
 						/>
 						<div class="mt-4 md:mt-0">
