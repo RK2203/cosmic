@@ -7,6 +7,7 @@ import StoreProvider from "@/Redux/StoreProvider";
 import { AuthProvider, useToken } from "@/Context/Auth";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { usePathname } from "next/navigation";
+import { PrimeReactProvider } from "primereact/api";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,8 +29,10 @@ export default function RootLayout({ children }) {
 				<StoreProvider>
 					<ApolloProvider client={client}>
 						<AuthProvider>
-							{!showNav && <Navbar />}
-							{children}
+							<PrimeReactProvider>
+								{!showNav && <Navbar />}
+								{children}
+							</PrimeReactProvider>
 						</AuthProvider>
 					</ApolloProvider>
 				</StoreProvider>
