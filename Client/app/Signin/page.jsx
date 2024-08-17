@@ -1,14 +1,8 @@
 "use client";
 
-import { authContext } from "@/Context/Auth";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { useContext, useEffect } from "react";
 
 export default function page() {
-	const { user, loading, role } = useContext(authContext);
-	const router = useRouter();
-
 	return (
 		<div className="flex justify-evenly mt-20">
 			<div class="max-w-sm p-6 e border border-gray-200 rounded-lg shadow blue">

@@ -17,7 +17,7 @@ export default function Home() {
 			</div>
 			<div class="grid grid-cols-4 gap-20 mx-20 mt-24">
 				<div>
-					<Loading src={"cab.avif"} type={1} />
+					<Loading src={"cab.avif"} />
 					<div className="flex justify-center mt-2 ">
 						<h1>Wanna take a ride?</h1>
 					</div>

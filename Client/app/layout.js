@@ -8,11 +8,12 @@ import { AuthProvider, useToken } from "@/Context/Auth";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { usePathname } from "next/navigation";
 import { PrimeReactProvider } from "primereact/api";
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
-	const noNav = ["/Shuttle_Driver", "/Cab_Driver", "/Driver_Form", "/Signin"];
+	const noNav = ["/Shuttle_Driver", "/Cab_Driver", "/Driver_Form", "/Signin","/Signin/User"];
 	const path = usePathname();
 
 	const showNav = noNav.includes(path);
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
 					<ApolloProvider client={client}>
 						<AuthProvider>
 							<PrimeReactProvider>
+								<NextTopLoader color="#8585f8" speed={200}/>
 								{!showNav && <Navbar />}
 								{children}
 							</PrimeReactProvider>

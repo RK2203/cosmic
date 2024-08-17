@@ -8,7 +8,7 @@ import { authContext, useAuth } from "@/Context/Auth";
 
 export default function Navbar() {
 	const router = useRouter();
-	const { user } = useContext(authContext);
+	const { user } = useAuth();
 
 	return (
 		<nav className="sticky top-0 z-50">
@@ -52,26 +52,22 @@ export default function Navbar() {
 					</div>
 					<div className="flex items-center space-x-6 rtl:space-x-reverse">
 						{!user ? (
-							<button
-								type="button"
-								onClick={() => {
-									router.push("/Signin");
-								}}
-								class="text-gray-900 light hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 hover:text-white">
-								Sing In
-							</button>
+							<Link href="/Signin">
+								<div class="text-gray-900 light hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 hover:text-white">
+									Sing In
+								</div>
+							</Link>
 						) : (
 							<div></div>
 						)}
 						{user ? (
-							<img
-								onClick={() => {
-									router.push("/Account");
-								}}
-								className="h-12 w-12 rounded-full"
-								src="https://placehold.co/96x96"
-								alt=""
-							/>
+							<Link href="/Account">
+								<img
+									className="h-12 w-12 rounded-full"
+									src="https://placehold.co/96x96"
+									alt=""
+								/>
+							</Link>
 						) : (
 							<div></div>
 						)}
