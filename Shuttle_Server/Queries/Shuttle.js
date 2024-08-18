@@ -26,10 +26,7 @@ async function main() {
 	    LIMIT 1;
 	  `;
 
-        //PENDING
-
-    
-
+	console.log(nearestSpot);
 }
 
 main()
