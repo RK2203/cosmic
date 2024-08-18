@@ -7,6 +7,8 @@ app.use(cors());
 
 const port = 7000;
 
+console.log(process.env.DATABASE_URL)
+
 app.get("/", (req, res) => {
 	res.send("Hello world");
 });
