@@ -5,6 +5,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+
+
 const port = 7000;
 
 console.log(process.env.DATABASE_URL)
