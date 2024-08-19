@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import app from "@/Firebase";
 import { gql, useMutation } from "@apollo/client";
+import { useApolloClients } from "./Apollo";
 
 const auth = getAuth(app);
 
@@ -18,7 +19,9 @@ const query = gql`
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
-	const [refresh] = useMutation(query);
+	const { client1, client2 } = useApolloClients();
+
+	const [refresh] = useMutation(query, { client: client1 });
 
 	useEffect(() => {
 		const unsubscribe = async () => {
