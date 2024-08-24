@@ -42,8 +42,6 @@ export default function RootLayout({ children }) {
 		cache: new InMemoryCache(),
 	});
 
-	
-
 	return (
 		<html lang="en">
 			<body className={inter.className}>
@@ -51,11 +49,9 @@ export default function RootLayout({ children }) {
 					<ApolloProvider client={{ clien1, clien2 }}>
 						<ApolloClientsProvider>
 							<AuthProvider>
-								<PrimeReactProvider>
-									<NextTopLoader color="#8585f8" speed={200} />
-									{!showNav && <Navbar />}
-									{children}
-								</PrimeReactProvider>
+								<NextTopLoader color="#8585f8" speed={200} />
+								{!showNav && <Navbar />}
+								{children}
 							</AuthProvider>
 						</ApolloClientsProvider>
 					</ApolloProvider>
