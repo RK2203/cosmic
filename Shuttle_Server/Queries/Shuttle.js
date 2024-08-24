@@ -14,7 +14,7 @@ async function main() {
 
 	const userLat = 22.558274830775655;
 	const userLong = 88.30014515624794;
-	
+
 	const nearestSpot = await prisma.$queryRaw`
 	    SELECT "Stopage_id",
 	    ST_Distance(
@@ -25,36 +25,32 @@ async function main() {
 	    ORDER BY distance
 	    LIMIT 1;
 	  `;
-	console.log(nearestSpot)
-		//its work properly
-        //PENDING
-		//new worrk for this project
+
+	//PENDING
 	let arr = [];
-	const stop = nearestSpot.map((item)=>{
+	const stop = nearestSpot.map((item) => {
 		arr.push(item.Stopage_id)
 	})
 
-	
-    for (let i = 0; i < arr.length; i++) {
+
+	for (let i = 0; i < arr.length; i++) {
 		let element = arr[i];
-		
+
 
 		const data = await prisma.$queryRaw`SELECT * FROM "Map" WHERE "Stopage_id" = ${element}`;
 
-		console.log(data) 
+		console.log(data)
 
-		
+
 	}
-
 }
-
-main()
-	.then(async () => {
-		await prisma.$disconnect();
-	})
-	.catch(async (e) => {
-		console.error(e);
-		await prisma.$disconnect();
-		process.exit(1);
+	main()
+		.then(async () => {
+			await prisma.$disconnect();
+		})
+		.catch(async (e) => {
+			console.error(e);
+			await prisma.$disconnect();
+			process.exit(1);
 	});
 // commit and main
