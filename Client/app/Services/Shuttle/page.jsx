@@ -1,13 +1,28 @@
 "use client";
 
+import { useApolloClients } from "@/Context/Apollo";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, Suspense, useMemo } from "react";
 
 import { BiSortAlt2 } from "react-icons/bi";
 
+const query = gql`
+	query test($lat: Float!, $long: Float!) {
+		getShuttle(Lat: $lat, Long: $long) {
+			Starting
+			Destination
+		}
+	}
+`;
+
 export default function Shuttle() {
 	const [shuttles, setShuttles] = useState([]);
 	const [dest, setdest] = useState(null);
+
+	const { client2 } = useApolloClients();
+
+	const [getShuttle] = useLazyQuery(query, { client: client2 });
 
 	const router = useRouter();
 
@@ -24,54 +39,33 @@ export default function Shuttle() {
 		const params = new URLSearchParams(details).toString();
 		router.push(`/Services/Shuttle/${code}?${params}`);
 	};
-	function getCurrentTime() {
-		const now = new Date();
-		let hours = now.getHours();
-		const minutes = now.getMinutes();
-		const modifier = hours >= 12 ? "PM" : "AM";
-		hours = hours % 12 || 12;
-		const formattedTime = `${hours}:${minutes
-			.toString()
-			.padStart(2, "0")} ${modifier}`;
-		return formattedTime;
-	}
-
-	const currentTime = getCurrentTime();
+	// function getCurrentTime() {
+	// 	const now = new Date();
+	// 	let hours = now.getHours();
+	// 	const minutes = now.getMinutes();
+	// 	const modifier = hours >= 12 ? "PM" : "AM";
+	// 	hours = hours % 12 || 12;
+	// 	const formattedTime = `${hours}:${minutes
+	// 		.toString()
+	// 		.padStart(2, "0")} ${modifier}`;
+	// 	return formattedTime;
+	// }
 
 	const fetchShuttles = () => {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(async (position) => {
-				const loc = {
-					lat: position.coords.latitude,
-					long: position.coords.longitude,
-					time: "10:23 AM",
-				};
+				const lat = position.coords.latitude;
+				const long = position.coords.longitude;
 
 				try {
-					const response = await fetch(
-						"http://localhost:8000/Shuttles/getspot",
-						{
-							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
-							},
-							// body: JSON.stringify(loc),
-							body: JSON.stringify({
-								lat: 22.540668530875582,
-								long: 88.33169105928287,
-								time: "10:10 AM",
-							}),
-							// body: JSON.stringify({
-							// 	lat: 22.579348721922962,
-							// 	long: 88.46970675308098,
-							// 	time:"10:10 AM",
-							// }),
-						}
-					);
+					const res = await getShuttle({
+						variables: {
+							lat,
+							long,
+						},
+					});
 
-					const data = await response.json();
-
-					setShuttles(data);
+					setShuttles(res.data.getShuttle);
 				} catch (error) {
 					console.error("Error fetching shuttle data:", error);
 				}
@@ -118,37 +112,14 @@ export default function Shuttle() {
 			<Suspense
 				fallback={<p className="text-black">Loading.....</p>}
 				key={index}>
-				<div
-					onClick={() => {
-						book(
-							item.Data.Code,
-							item.Data.Fare,
-							item.Name,
-							item.Time,
-							!dest ? item.Data.Destination : dest,
-							item.ArrivalTime
-						);
-					}}
-					className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
+				<div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
 					<div className="flex justify-between">
 						<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-							{item.Data.Starting} → {item.Data.Destination}
+							{item.Starting} → {item.Destination}
 						</h5>
-						<p className="text-white font-bold">{item.Data.Code}</p>
 					</div>
-					<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-						Pick up at {item.Name} @ {item.Time}
-					</p>
-					{!dest ? (
-						<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-							Drops at {item.Data.Destination} @ {item.ArrivalTime}
-						</p>
-					) : (
-						<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-							Drops at {dest} @ {item.ArrivalTime}
-						</p>
-					)}
-					<p className="font-bold text-white">Rs {item.Data.Fare}/-</p>
+
+					<p className="font-bold text-white">Nearest pickup : .....</p>
 				</div>
 			</Suspense>
 		));

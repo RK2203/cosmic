@@ -1,15 +1,38 @@
 import express from "express";
 import cors from "cors";
+import { mergeTypeDefs } from "@graphql-tools/merge";
+import { mergeResolvers } from "@graphql-tools/merge";
+
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+
+import shuttle_type from "./Typedefs/Routes.typedef.js";
+import Shuttle_resolver from "./Resolvers/Routes.resolver.js";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+const options = {
+	origin: "http://localhost:3000",
+	credentials: true,
+};
+app.use(cors(options));
 
+const typeDefs = mergeTypeDefs([shuttle_type]);
+const resolvers = mergeResolvers([Shuttle_resolver]);
 
+const server = new ApolloServer({
+	typeDefs,
+	resolvers,
+});
 
 const port = 7000;
-
-console.log(process.env.DATABASE_URL)
+await server.start();
+app.use(
+	"/Shuttle_endpoint",
+	expressMiddleware(server, {
+		context: async ({ req, res }) => ({ req, res }),
+	})
+);
 
 app.get("/", (req, res) => {
 	res.send("Hello world");

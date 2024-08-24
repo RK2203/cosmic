@@ -8,11 +8,14 @@ import { signOut, getAuth } from "firebase/auth";
 import app from "@/Firebase";
 import { update } from "@/Redux/Authenticator";
 import { authContext, useAuth } from "@/Context/Auth";
-import { gql, useLazyQuery, useMutation } from "@apollo/client";
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useApolloClients } from "@/Context/Apollo";
 
 const auth = getAuth(app);
 
 export default function user() {
+	const { client1 } = useApolloClients();
+
 	const query = gql`
 		query getuser($uid: ID!) {
 			getUser(uid: $uid) {
@@ -29,8 +32,8 @@ export default function user() {
 		}
 	`;
 	const { user, loading } = useAuth();
-	const [getUser] = useLazyQuery(query);
-	const [logout] = useMutation(logoutQuery);
+	const [getUser] = useLazyQuery(query, { client: client1 });
+	const [logout] = useMutation(logoutQuery, { client: client1 });
 	const [det, setDet] = useState(null);
 	const router = useRouter();
 

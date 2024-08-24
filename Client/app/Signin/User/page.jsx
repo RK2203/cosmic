@@ -16,6 +16,7 @@ import { gql, useMutation } from "@apollo/client";
 import { getDatabase, ref, set } from "firebase/database";
 import { authContext, useAuth } from "@/Context/Auth";
 import { ProgressSpinner } from "primereact/progressspinner";
+import { useApolloClients } from "@/Context/Apollo";
 
 const db = getDatabase(app);
 
@@ -28,7 +29,9 @@ export default function page() {
 	const [conf, setconf] = useState(null);
 	const [otp, setotp] = useState(null);
 	const [loader, setloader] = useState(false);
-	const [adduser, { data, _, error }] = useMutation(query);
+	const { client1 } = useApolloClients();
+
+	const [adduser] = useMutation(query, { client: client1 });
 	const otpref = useRef(null);
 	const auth = getAuth(app);
 	const router = useRouter();
