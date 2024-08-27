@@ -12,6 +12,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@apollo/server": "^4.11.0",
+		"@googlemaps/google-maps-services-js": "^3.4.0",
 		"@prisma/client": "^5.18.0",
 		"apollo-server": "^3.13.0",
 		"cors": "^2.8.5",

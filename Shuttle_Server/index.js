@@ -8,6 +8,8 @@ import { expressMiddleware } from "@apollo/server/express4";
 
 import shuttle_type from "./Typedefs/Routes.typedef.js";
 import Shuttle_resolver from "./Resolvers/Routes.resolver.js";
+import shuttleData_type from "./Typedefs/Shuttle.typedef.js";
+import shuttle_Data_Resolver from "./Resolvers/Shuttles.resolver.js";
 
 const app = express();
 app.use(express.json());
@@ -17,8 +19,8 @@ const options = {
 };
 app.use(cors(options));
 
-const typeDefs = mergeTypeDefs([shuttle_type]);
-const resolvers = mergeResolvers([Shuttle_resolver]);
+const typeDefs = mergeTypeDefs([shuttle_type,shuttleData_type]);
+const resolvers = mergeResolvers([Shuttle_resolver,shuttle_Data_Resolver]);
 
 const server = new ApolloServer({
 	typeDefs,

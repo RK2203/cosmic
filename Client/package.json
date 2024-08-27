@@ -11,10 +11,12 @@
   "dependencies": {
     "@apollo/client": "^3.10.8",
     "@reduxjs/toolkit": "^2.2.6",
+    "daisyui": "^4.12.10",
     "firebase": "^10.12.2",
     "firebase-admin": "^12.3.0",
     "flowbite-react": "^0.10.1",
     "framer-motion": "^11.3.30",
+    "google-map-react": "^2.2.1",
     "graphql": "^16.9.0",
     "next": "14.2.4",
     "nextjs-toploader": "^1.6.12",

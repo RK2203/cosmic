@@ -27,30 +27,35 @@ export default function Shuttle() {
 	const [start, setStart] = useState("From");
 	const [dest, setDest] = useState("To");
 
-	// const book = (code, fare, start, startTime, dest, destTime) => {
-	// 	const details = {
-	// 		code: code,
-	// 		fare: fare,
-	// 		start: start,
-	// 		startTime: startTime,
-	// 		dest: dest,
-	// 		destTime: destTime,
-	// 	};
+	const router = useRouter();
 
-	// 	const params = new URLSearchParams(details).toString();
-	// 	router.push(`/Services/Shuttle/${code}?${params}`);
-	// };
-	// function getCurrentTime() {
-	// 	const now = new Date();
-	// 	let hours = now.getHours();
-	// 	const minutes = now.getMinutes();
-	// 	const modifier = hours >= 12 ? "PM" : "AM";
-	// 	hours = hours % 12 || 12;
-	// 	const formattedTime = `${hours}:${minutes
-	// 		.toString()
-	// 		.padStart(2, "0")} ${modifier}`;
-	// 	return formattedTime;
-	// }
+	const search = (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target);
+		const data = Object.fromEntries(formData.entries());
+
+		const time = "10:00 AM";
+
+		const details = {
+			start: data.start,
+			dest: data.dest,
+			time,
+		};
+
+		const params = new URLSearchParams(details).toString();
+		router.push(`/Services/Shuttle/Search_Results?${params}`);
+	};
+	function getCurrentTime() {
+		const now = new Date();
+		let hours = now.getHours();
+		const minutes = now.getMinutes();
+		const modifier = hours >= 12 ? "PM" : "AM";
+		hours = hours % 12 || 12;
+		const formattedTime = `${hours}:${minutes
+			.toString()
+			.padStart(2, "0")} ${modifier}`;
+		return formattedTime;
+	}
 
 	// Swapping
 	const startChange = (e) => {
@@ -130,7 +135,7 @@ export default function Shuttle() {
 
 	return (
 		<div>
-			<form className="max-w-sm mx-auto mt-20" onSubmit={fetchSearch}>
+			<form className="max-w-sm mx-auto mt-20" onSubmit={search}>
 				<div className="mb-5">
 					<input
 						type="text"
