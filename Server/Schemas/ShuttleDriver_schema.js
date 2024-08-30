@@ -5,6 +5,8 @@ const shuttleDriverSchema = new Schema({
 	Name: String,
 	Email: String,
 
+	DOB: String,
+
 	Phone: Number,
 
 	Car_No: String,

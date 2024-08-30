@@ -11,6 +11,8 @@ import Shuttle_resolver from "./Resolvers/Routes.resolver.js";
 import shuttleData_type from "./Typedefs/Shuttle.typedef.js";
 import shuttle_Data_Resolver from "./Resolvers/Shuttles.resolver.js";
 
+import verifyToken from "./Middlewares/Verify.js";
+
 const app = express();
 app.use(express.json());
 const options = {
@@ -19,8 +21,10 @@ const options = {
 };
 app.use(cors(options));
 
-const typeDefs = mergeTypeDefs([shuttle_type,shuttleData_type]);
-const resolvers = mergeResolvers([Shuttle_resolver,shuttle_Data_Resolver]);
+app.use(verifyToken);
+
+const typeDefs = mergeTypeDefs([shuttle_type, shuttleData_type]);
+const resolvers = mergeResolvers([Shuttle_resolver, shuttle_Data_Resolver]);
 
 const server = new ApolloServer({
 	typeDefs,

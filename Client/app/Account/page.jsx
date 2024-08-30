@@ -44,6 +44,10 @@ export default function user() {
 					uid: user.uid,
 				},
 			});
+			
+
+			console.log(res);
+			
 
 			setDet(res.data.getUser);
 		}

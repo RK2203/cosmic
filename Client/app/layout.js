@@ -6,18 +6,16 @@ import "./globals.css";
 import Navbar from "@/Components/Navbar";
 import StoreProvider from "@/Redux/StoreProvider";
 import { AuthProvider, useToken } from "@/Context/Auth";
-import {
-	ApolloClient,
-	ApolloProvider,
-	InMemoryCache,
-	useApolloClient,
-} from "@apollo/client";
+import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { usePathname } from "next/navigation";
 import { PrimeReactProvider } from "primereact/api";
 import NextTopLoader from "nextjs-toploader";
-import { ApolloClientsProvider, useApolloClients } from "@/Context/Apollo";
+import { ApolloClientsProvider } from "@/Context/Apollo";
 
 const inter = Inter({ subsets: ["latin"] });
+
+import { CookieProvider } from "@/Context/Cookie";
+import { SignupProvider } from "@/Context/Signup";
 
 export default function RootLayout({ children }) {
 	const noNav = [
@@ -48,11 +46,15 @@ export default function RootLayout({ children }) {
 				<StoreProvider>
 					<ApolloProvider client={{ clien1, clien2 }}>
 						<ApolloClientsProvider>
-							<AuthProvider>
-								<NextTopLoader color="#8585f8" speed={200} />
-								{!showNav && <Navbar />}
-								{children}
-							</AuthProvider>
+							<CookieProvider>
+								<SignupProvider>
+									<AuthProvider>
+										<NextTopLoader color="#8585f8" speed={200} />
+										{!showNav && <Navbar />}
+										{children}
+									</AuthProvider>
+								</SignupProvider>
+							</CookieProvider>
 						</ApolloClientsProvider>
 					</ApolloProvider>
 				</StoreProvider>

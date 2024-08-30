@@ -8,6 +8,7 @@ import { update } from "@/Redux/Authenticator";
 import { useRouter } from "next/navigation";
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { authContext } from "@/Context/Auth";
+import { useApolloClients } from "@/Context/Apollo";
 
 const auth = getAuth(app);
 
@@ -29,10 +30,11 @@ export default function page() {
 	`;
 
 	const [driver, setDriver] = useState(null);
-	const [getShuttleDriver] = useLazyQuery(query);
-	const [logout] = useMutation(logoutQuery);
+	const { client1 } = useApolloClients();
+	const [getShuttleDriver] = useLazyQuery(query, { client: client1 });
+	const [logout] = useMutation(logoutQuery, { client: client1 });
 
-	const { user, loading, role } = useContext(authContext);
+	const { user, loading } = useContext(authContext);
 
 	const router = useRouter();
 
@@ -45,7 +47,9 @@ export default function page() {
 
 		console.log(res);
 
-		setDriver(res.data.getShuttleDriver);
+		if (res.data) {
+			setDriver(res.data.getShuttleDriver);
+		}
 	};
 
 	useEffect(() => {
@@ -105,7 +109,7 @@ export default function page() {
 						<div>
 							<h3 class="text-lg lg:text-xl font-medium">Phone number</h3>
 							<p>
-								{driver && driver.Phone ? driver.phone : "Add phone number"}
+								{driver && driver.Phone ? driver.Phone : "Add phone number"}
 								<span class="text-green-500">✔</span>
 							</p>
 						</div>

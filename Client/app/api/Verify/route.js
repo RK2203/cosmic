@@ -21,15 +21,16 @@ export async function POST(request) {
 		if (!token) {
 			return new Response(JSON.stringify({ message: "Token missing" }), {
 				headers: { "Content-Type": "application/json" },
-				status: 400, 
+				status: 400,
 			});
 		}
 
 		const user = await auth.verifyIdToken(token);
+
 		if (!user) {
 			return new Response(JSON.stringify({ message: "Unauthorized" }), {
 				headers: { "Content-Type": "application/json" },
-				status: 401, 
+				status: 401,
 			});
 		} else {
 			const ref = db.ref(`Roles/${user.uid}/Role`);
@@ -48,13 +49,13 @@ export async function POST(request) {
 
 			return new Response(JSON.stringify(msg), {
 				headers: { "Content-Type": "application/json" },
-				status: 200, 
+				status: 200,
 			});
 		}
 	} catch (error) {
 		return new Response(JSON.stringify({ message: "Internal server error" }), {
 			headers: { "Content-Type": "application/json" },
-			status: 500, 
+			status: 500,
 		});
 	}
 }

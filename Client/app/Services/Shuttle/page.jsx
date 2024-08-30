@@ -93,6 +93,9 @@ export default function Shuttle() {
 						},
 					});
 
+					console.log(res);
+					
+
 					setShuttles(res.data.getShuttle);
 				} catch (error) {
 					console.error("Error fetching shuttle data:", error);

@@ -17,26 +17,28 @@ import { getDatabase, ref, set } from "firebase/database";
 import { authContext, useAuth } from "@/Context/Auth";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { useApolloClients } from "@/Context/Apollo";
+import { useCookie } from "@/Context/Cookie";
 
 const db = getDatabase(app);
 
 export default function page() {
 	const query = gql`
-		mutation addUser($token: String!) {
-			adduser(token: $token)
+		mutation addUser($name: String!, $uid: String!, $email: String!) {
+			adduser(name: $name, uid: $uid, email: $email)
 		}
 	`;
 	const [conf, setconf] = useState(null);
 	const [otp, setotp] = useState(null);
 	const [loader, setloader] = useState(false);
 	const { client1 } = useApolloClients();
-
 	const [adduser] = useMutation(query, { client: client1 });
 	const otpref = useRef(null);
 	const auth = getAuth(app);
 	const router = useRouter();
 	const dispatch = useDispatch();
 	const { loading, user, role } = useAuth();
+
+	const { setToken } = useCookie();
 
 	const getOtp = (e) => {
 		e.preventDefault();
@@ -132,9 +134,15 @@ export default function page() {
 			.then(async (res) => {
 				setloader(true);
 				res.user.getIdToken().then(async (token) => {
+					await setToken(token);
+
+					const { email, displayName } = res.user.reloadUserInfo;
+
 					const response = await adduser({
-						variables: { token: token },
+						variables: { name: displayName, email: email, uid: res.user.uid },
 					});
+
+					console.log(response);
 
 					try {
 						await set(ref(db, "Roles/" + res.user.uid), {
