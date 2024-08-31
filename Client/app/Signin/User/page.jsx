@@ -23,8 +23,13 @@ const db = getDatabase(app);
 
 export default function page() {
 	const query = gql`
-		mutation addUser($name: String!, $uid: String!, $email: String!) {
-			adduser(name: $name, uid: $uid, email: $email)
+		mutation addUser(
+			$name: String!
+			$uid: String!
+			$email: String!
+			$image: String!
+		) {
+			adduser(name: $name, uid: $uid, email: $email, image: $image)
 		}
 	`;
 	const [conf, setconf] = useState(null);
@@ -136,10 +141,15 @@ export default function page() {
 				res.user.getIdToken().then(async (token) => {
 					await setToken(token);
 
-					const { email, displayName } = res.user.reloadUserInfo;
+					const { email, displayName, photoUrl } = res.user.reloadUserInfo;
 
 					const response = await adduser({
-						variables: { name: displayName, email: email, uid: res.user.uid },
+						variables: {
+							name: displayName,
+							email: email,
+							uid: res.user.uid,
+							image: photoUrl,
+						},
 					});
 
 					console.log(response);

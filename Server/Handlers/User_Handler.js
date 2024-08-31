@@ -1,6 +1,6 @@
 import Users from "../Schemas/User_schema.js";
 
-export async function addNewUser(name, email, uid) {
+export async function addNewUser(name, email, uid, image) {
 	try {
 		const isSaved = await Users.findOne({ UID: uid });
 
@@ -9,6 +9,7 @@ export async function addNewUser(name, email, uid) {
 				Name: name,
 				Email: email,
 				Phone: null,
+				Image: image,
 				UID: uid,
 				Shuttles: null,
 			});

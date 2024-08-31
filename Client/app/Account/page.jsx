@@ -22,6 +22,7 @@ export default function user() {
 				Name
 				Email
 				Phone
+				Image
 			}
 		}
 	`;
@@ -44,10 +45,8 @@ export default function user() {
 					uid: user.uid,
 				},
 			});
-			
 
 			console.log(res);
-			
 
 			setDet(res.data.getUser);
 		}
@@ -87,7 +86,7 @@ export default function user() {
 					<div className="relative inline-block">
 						<img
 							class="w-24 h-24 lg:w-32 lg:h-32 rounded-full mb-4 lg:mr-4 lg:mb-0"
-							src="https://placehold.co/96x96"
+							src={det && det.Image}
 							alt="User profile picture"
 						/>
 						<FaCamera className="h-6 w-6 absolute bottom-2 right-6" />

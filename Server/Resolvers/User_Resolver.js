@@ -5,9 +5,9 @@ const userResolver = {
 	Mutation: {
 		adduser: async (parent, arg, { req, res }) => {
 			try {
-				const { name, email, uid } = arg;
+				const { name, email, uid, image } = arg;
 
-				const res = await addNewUser(name, email, uid);
+				const res = await addNewUser(name, email, uid, image);
 
 				return res;
 			} catch (error) {

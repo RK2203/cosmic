@@ -41,7 +41,7 @@ export default function Navbar() {
 							<Link href="/Account">
 								<img
 									className="h-12 w-12 rounded-full"
-									src="https://placehold.co/96x96"
+									src={user.reloadUserInfo.photoUrl}
 									alt=""
 								/>
 							</Link>
