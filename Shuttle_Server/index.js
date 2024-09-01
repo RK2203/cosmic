@@ -1,5 +1,8 @@
 import express from "express";
 import cors from "cors";
+import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
+
 import { mergeTypeDefs } from "@graphql-tools/merge";
 import { mergeResolvers } from "@graphql-tools/merge";
 
@@ -22,6 +25,23 @@ const options = {
 app.use(cors(options));
 
 app.use(verifyToken);
+
+const url = process.env.MONGO_URL;
+
+
+async function connectDB() {
+	const client = new MongoClient(url);
+	await client.connect();
+	await mongoose.connect(url);
+}
+
+connectDB()
+	.then(() => {
+		console.log("DATABASE CONNECTED");
+	})
+	.catch(() => {
+		console.log("Database connection failed");
+	});
 
 const typeDefs = mergeTypeDefs([shuttle_type, shuttleData_type]);
 const resolvers = mergeResolvers([Shuttle_resolver, shuttle_Data_Resolver]);

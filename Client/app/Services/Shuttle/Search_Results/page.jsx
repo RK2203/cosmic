@@ -2,10 +2,8 @@
 
 import { useApolloClients } from "@/Context/Apollo";
 import { gql, useLazyQuery } from "@apollo/client";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
-import GoogleMapReact from "google-map-react";
 
 const query = gql`
 	query test($start: String!, $dest: String!, $time: String!) {
@@ -32,18 +30,23 @@ export default function page() {
 
 	const [data, setData] = useState(null);
 
-	const getData = async () => {
+	const router = useRouter();
+
+	function book(data) {
+		const params = new URLSearchParams(data).toString();
+		router.push(`/Services/Shuttle/${data.Shuttle_id}?${params}`);
+	}
+
+	const getData = async (day) => {
 		const res = await getShuttleData({
 			variables: {
 				start: param.get("start"),
 				dest: param.get("dest"),
-				time: param.get("time"),
+				time: day == "Today" ? param.get("time") : "00:00 AM",
 			},
 		});
 
-
 		console.log(res);
-		
 
 		setData(res.data.getShuttleData);
 	};
@@ -70,13 +73,9 @@ export default function page() {
 		setDays(weekArray);
 	}
 
-	function test(pr) {
-		console.log(pr);
-	}
-
 	useEffect(() => {
 		createWeekArray();
-		getData();
+		getData("Today");
 	}, []);
 
 	return (
@@ -96,7 +95,7 @@ export default function page() {
 								<button
 									type="button"
 									onClick={() => {
-										test(item);
+										getData(item);
 									}}
 									class="px-4 py-2 text-sm font-medium text-gray-900 but bg-white border-t border-b border-gray-200 ">
 									{item}
@@ -110,7 +109,11 @@ export default function page() {
 				{data &&
 					data.map((item) => {
 						return (
-							<div className="flex mx-10 mt-10 text-white">
+							<div
+								className="flex mx-10 mt-10 text-white"
+								onClick={() => {
+									book(item);
+								}}>
 								<div class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow blue">
 									<div className="flex justify-between">
 										<h5 class="mb-2 text-2xl font-bold tracking-tight ">

@@ -6,6 +6,10 @@ import React from "react";
 export default function page({ params }) {
 	const param = useSearchParams();
 
+	console.log(param.get("Fare"));
+
+	// Shoal improve the UI of the page
+
 	return (
 		<div className="flex justify-center">
 			<div class="w-3/4 p-4  bg-white border border-gray-200 rounded-lg shadow sm:p-6 dark:bg-gray-800 dark:border-gray-700 my-20 mx-20">

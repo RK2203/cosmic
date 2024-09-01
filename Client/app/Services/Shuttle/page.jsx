@@ -34,7 +34,7 @@ export default function Shuttle() {
 		const formData = new FormData(e.target);
 		const data = Object.fromEntries(formData.entries());
 
-		const time = "10:00 AM";
+		const time = "10:31 AM";
 
 		const details = {
 			start: data.start,
@@ -104,15 +104,7 @@ export default function Shuttle() {
 		}
 	};
 
-	// Fetching search
-
-	const fetchSearch = async (e) => {
-		e.preventDefault();
-
-		const fromData = new FormData(e.target);
-
-		const data = Object.fromEntries(fromData.entries());
-	};
+	
 
 	useEffect(() => {
 		fetchShuttles();

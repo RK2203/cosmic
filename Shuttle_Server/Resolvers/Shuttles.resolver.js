@@ -94,9 +94,9 @@ const shuttle_Data_Resolver = {
 
 					if (distFromStart < distFromDest) {
 						const data =
-							await prisma.$queryRaw`SELECT "Start_time" FROM "Shuttle" WHERE "Shuttle_id"=${f.Shuttle_id}`;
+							await prisma.$queryRaw`SELECT "Time" FROM "Map" WHERE "Shuttle_id"=${f.Shuttle_id} AND "Stopage_id"=${stopageid1}`;
 
-						const startingTimeInMiniutes = timeToMinutes(data[0].Start_time);
+						const startingTimeInMiniutes = timeToMinutes(data[0].Time);
 						const currentTimeInMiniutes = timeToMinutes(args.Time);
 
 						if (startingTimeInMiniutes >= currentTimeInMiniutes) {

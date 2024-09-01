@@ -7,7 +7,7 @@ import app from "@/Firebase";
 import { update } from "@/Redux/Authenticator";
 import { useRouter } from "next/navigation";
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
-import { authContext } from "@/Context/Auth";
+import { authContext, useAuth } from "@/Context/Auth";
 import { useApolloClients } from "@/Context/Apollo";
 
 const auth = getAuth(app);
@@ -34,9 +34,10 @@ export default function page() {
 	const [getShuttleDriver] = useLazyQuery(query, { client: client1 });
 	const [logout] = useMutation(logoutQuery, { client: client1 });
 
-	const { user, loading } = useContext(authContext);
+	const { user, loading } = useAuth();
 
 	const router = useRouter();
+	
 
 	const getDriver = async () => {
 		const res = await getShuttleDriver({
