@@ -8,7 +8,8 @@ export default function page({ params }) {
 
 	console.log(param.get("Fare"));
 
-	// Shoal improve the UI of the page
+	// Aritra this image not responsive for mobile devices please check and improve this for mobile devices
+	
 
 	return (
 		<div className="flex justify-center">
@@ -21,7 +22,7 @@ export default function page({ params }) {
 				<h2 class="text-lg text-gray-200 font-medium mt-4 ml-5">
 					Here is Your Trip details
 				</h2>
-
+				<div className="relative"><img className="absolute right-0 w-52 h-auto" src="http://localhost:3000/cab.jpg" loading="lazy" alt="Description of Image" /></div>
 				<div class="space-y-2">
 					<div div class="flex items-center ml-6">
 						<div class="w-2 h-2 bg-white rounded-se-sm mr-2"></div>
@@ -30,16 +31,16 @@ export default function page({ params }) {
 						<span className="m-3 text-gray-200 ">1 h 28 min</span>
 					</div>
 
-					<div class="flex items-center ml-6">
-						<span className="m-3 text-gray-200 ">FARE : -</span>
+					<div class="flex items-center ml-3">
+					<span className="m-2 text-gray-200 ">FARE : -</span>
 						<span className="text-gray-200">₹{param.get("fare")}</span>
 					</div>
 				</div>
-				<h2 class="text-xl font-medium mb-4 ml-4 pt-3 text-gray-200">Route</h2>
+				<h2 class="text-xl font-medium mb-3 ml-5 pt-2 text-gray-200 mt-4">Route</h2>
 				<div class="space-y-4">
 					<div class="flex justify-between items-start">
 						<div class="flex items-center">
-							<div class="w-4 h-4 bg-primary rounded-full mr-2"></div>
+							<div class="w-4 h-4 bg-primary rounded-full mr-1"></div>
 							<span className="text-gray-200">
 								{param.get("start")} Ride Start At :{" "}
 							</span>
@@ -49,9 +50,9 @@ export default function page({ params }) {
 							</span>
 						</div>
 					</div>
-					<div class="flex justify-between items-start">
+					<div class="flex justify-between items-start ">
 						<div class="flex items-center">
-							<div class="w-4 h-4 bg-primary rounded-full mr-2"></div>
+							<div class="w-4 h-4 bg-primary rounded-full mr-1"></div>
 							<span className="text-gray-200">
 								{param.get("dest")} Ride end At:
 							</span>
