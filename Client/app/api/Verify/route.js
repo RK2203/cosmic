@@ -1,7 +1,8 @@
 import { getAuth } from "firebase-admin/auth";
 import { getDatabase } from "firebase-admin/database";
 import admin from "firebase-admin";
-import cred from "../../../credentials.json" assert { type: "json" };
+import cred from "../../../../Server/credentials.json" assert {type : "json"};
+// import cred from "../../../credentials.json" assert { type: "json" };
 
 if (!admin.apps.length) {
 	admin.initializeApp({
