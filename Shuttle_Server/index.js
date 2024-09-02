@@ -1,5 +1,8 @@
 import express from "express";
 import cors from "cors";
+import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
+
 import { mergeTypeDefs } from "@graphql-tools/merge";
 import { mergeResolvers } from "@graphql-tools/merge";
 
@@ -8,6 +11,10 @@ import { expressMiddleware } from "@apollo/server/express4";
 
 import shuttle_type from "./Typedefs/Routes.typedef.js";
 import Shuttle_resolver from "./Resolvers/Routes.resolver.js";
+import shuttleData_type from "./Typedefs/Shuttle.typedef.js";
+import shuttle_Data_Resolver from "./Resolvers/Shuttles.resolver.js";
+
+import verifyToken from "./Middlewares/Verify.js";
 
 const app = express();
 app.use(express.json());
@@ -17,8 +24,27 @@ const options = {
 };
 app.use(cors(options));
 
-const typeDefs = mergeTypeDefs([shuttle_type]);
-const resolvers = mergeResolvers([Shuttle_resolver]);
+app.use(verifyToken);
+
+const url = process.env.MONGO_URL;
+
+
+async function connectDB() {
+	const client = new MongoClient(url);
+	await client.connect();
+	await mongoose.connect(url);
+}
+
+connectDB()
+	.then(() => {
+		console.log("DATABASE CONNECTED");
+	})
+	.catch(() => {
+		console.log("Database connection failed");
+	});
+
+const typeDefs = mergeTypeDefs([shuttle_type, shuttleData_type]);
+const resolvers = mergeResolvers([Shuttle_resolver, shuttle_Data_Resolver]);
 
 const server = new ApolloServer({
 	typeDefs,

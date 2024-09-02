@@ -7,6 +7,8 @@ const userSchema = new Schema({
 
 	Phone: Number,
 
+	Image: String,
+
 	UID: String,
 
 	Shuttles: Array,

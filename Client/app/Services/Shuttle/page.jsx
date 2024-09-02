@@ -4,6 +4,7 @@ import { useApolloClients } from "@/Context/Apollo";
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, Suspense, useMemo } from "react";
+import { motion } from "framer-motion";
 
 import { BiSortAlt2 } from "react-icons/bi";
 
@@ -18,38 +19,65 @@ const query = gql`
 
 export default function Shuttle() {
 	const [shuttles, setShuttles] = useState([]);
-	const [dest, setdest] = useState(null);
 
 	const { client2 } = useApolloClients();
 
 	const [getShuttle] = useLazyQuery(query, { client: client2 });
 
+	const [start, setStart] = useState("From");
+	const [dest, setDest] = useState("To");
+
 	const router = useRouter();
 
-	const book = (code, fare, start, startTime, dest, destTime) => {
+	const search = (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target);
+		const data = Object.fromEntries(formData.entries());
+
+		const time = "10:31 AM";
+
 		const details = {
-			code: code,
-			fare: fare,
-			start: start,
-			startTime: startTime,
-			dest: dest,
-			destTime: destTime,
+			start: data.start,
+			dest: data.dest,
+			time,
 		};
 
 		const params = new URLSearchParams(details).toString();
-		router.push(`/Services/Shuttle/${code}?${params}`);
+		router.push(`/Services/Shuttle/Search_Results?${params}`);
 	};
-	// function getCurrentTime() {
-	// 	const now = new Date();
-	// 	let hours = now.getHours();
-	// 	const minutes = now.getMinutes();
-	// 	const modifier = hours >= 12 ? "PM" : "AM";
-	// 	hours = hours % 12 || 12;
-	// 	const formattedTime = `${hours}:${minutes
-	// 		.toString()
-	// 		.padStart(2, "0")} ${modifier}`;
-	// 	return formattedTime;
-	// }
+	function getCurrentTime() {
+		const now = new Date();
+		let hours = now.getHours();
+		const minutes = now.getMinutes();
+		const modifier = hours >= 12 ? "PM" : "AM";
+		hours = hours % 12 || 12;
+		const formattedTime = `${hours}:${minutes
+			.toString()
+			.padStart(2, "0")} ${modifier}`;
+		return formattedTime;
+	}
+
+	// Swapping
+	const startChange = (e) => {
+		setStart(e.target.value);
+	};
+	const destChange = (e) => {
+		setDest(e.target.value);
+	};
+
+	const startfocus = () => {
+		setStart("");
+	};
+	const destfocus = () => {
+		setDest("");
+	};
+
+	function swapper() {
+		setStart(dest);
+		setDest(start);
+	}
+
+	// Fetching routes
 
 	const fetchShuttles = () => {
 		if (navigator.geolocation) {
@@ -65,6 +93,9 @@ export default function Shuttle() {
 						},
 					});
 
+					console.log(res);
+					
+
 					setShuttles(res.data.getShuttle);
 				} catch (error) {
 					console.error("Error fetching shuttle data:", error);
@@ -73,35 +104,7 @@ export default function Shuttle() {
 		}
 	};
 
-	const fetchSearch = async (e) => {
-		e.preventDefault();
-
-		const fromData = new FormData(e.target);
-
-		const data = Object.fromEntries(fromData.entries());
-
-		await fetch("http://localhost:8000/Shuttles/search", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				start: data.start,
-				dest: data.dest,
-				time: "10:00 AM",
-			}),
-		})
-			.then((res) => {
-				return res.json();
-			})
-			.then((res) => {
-				setdest(data.dest);
-				setShuttles(res);
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-	};
+	
 
 	useEffect(() => {
 		fetchShuttles();
@@ -112,7 +115,7 @@ export default function Shuttle() {
 			<Suspense
 				fallback={<p className="text-black">Loading.....</p>}
 				key={index}>
-				<div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
+				<div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow blue  cursor-pointer">
 					<div className="flex justify-between">
 						<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 							{item.Starting} → {item.Destination}
@@ -127,27 +130,36 @@ export default function Shuttle() {
 
 	return (
 		<div>
-			<form className="max-w-sm mx-auto mt-20" onSubmit={fetchSearch}>
+			<form className="max-w-sm mx-auto mt-20" onSubmit={search}>
 				<div className="mb-5">
 					<input
 						type="text"
 						id="from"
 						name="start"
-						className="light border border-gray-900 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-						placeholder="From"
+						className="light  text-gray-900 text-sm rounded-lg  block w-full p-2.5"
+						value={start}
+						onFocus={startfocus}
+						onChange={startChange}
 						required
 					/>
 				</div>
 				<div className="flex justify-end text-xl mb-5 ">
-					<BiSortAlt2 className="border-black border-2 rounded-full font-bold" />
+					<motion.div whileTap={{ rotate: 180 }} transition={{ duration: 0.1 }}>
+						<BiSortAlt2
+							className="border-black border-2 rounded-full font-bold"
+							onClick={swapper}
+						/>
+					</motion.div>
 				</div>
 				<div className="mb-5">
 					<input
 						type="text"
 						id="to"
 						name="dest"
-						className="light border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-						placeholder="Destination"
+						className="light  text-gray-900 text-sm rounded-lg  block w-full p-2.5 "
+						value={dest}
+						onFocus={destfocus}
+						onChange={destChange}
 						required
 					/>
 				</div>

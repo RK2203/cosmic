@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
-import shuttle from "./Routes/Shuttles.js";
 import mongoose from "mongoose";
 import cors from "cors";
 import { mergeTypeDefs } from "@graphql-tools/merge";
@@ -12,10 +11,11 @@ import driverType from "./Typedefs/drivertypedef.js";
 import driverResolver from "./Resolvers/Driver_Resolver.js";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
+import verifyToken from "./Middlewares/Verify.js";
+import cookieParser from "cookie-parser";
+import cookieResolver from "./Handlers/Set_Cookie.js";
 
 dotenv.config();
-
-// Hey I am new2
 
 const app = express();
 app.use(express.json());
@@ -24,6 +24,8 @@ const options = {
 	credentials: true,
 };
 app.use(cors(options));
+app.use(cookieParser());
+app.use(verifyToken);
 
 const port = 8000;
 const url = process.env.URL;
@@ -43,7 +45,11 @@ connectDB()
 	});
 
 const typeDefs = mergeTypeDefs([usertypedef, driverType]);
-const resolvers = mergeResolvers([userResolver, driverResolver]);
+const resolvers = mergeResolvers([
+	userResolver,
+	driverResolver,
+	cookieResolver,
+]);
 
 const server = new ApolloServer({
 	typeDefs,
@@ -58,8 +64,6 @@ app.use(
 		context: async ({ req, res }) => ({ req, res }),
 	})
 );
-
-app.use("/Shuttles", shuttle);
 
 app.get("/", (req, res) => {
 	res.send("Hello World!");

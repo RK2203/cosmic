@@ -5,15 +5,16 @@ const userType = gql`
 		getUser(uid: ID!): User
 	}
 	type Mutation {
-		adduser(token: String!): String
+		adduser(name: String!, uid: String!, email: String!, image: String!): String
 		logout: String
-		refresh(token: String!): String
+		setCookie(token: String!): String
 	}
 
 	type User {
 		Name: String
 		Email: String
 		Phone: Int
+		Image: String
 		UID: ID!
 	}
 `;

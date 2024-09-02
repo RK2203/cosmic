@@ -1,13 +1,9 @@
 "use client";
 
-import { redirect, useRouter } from "next/navigation";
-import { Suspense, useContext, useEffect, useState } from "react";
-import { authContext, useAuth } from "@/Context/Auth";
-import Loading from "./loading";
+import Link from "next/link";
+import { easeIn, easeInOut, motion } from "framer-motion";
 
 export default function Home() {
-	const router = useRouter();
-
 	return (
 		<div>
 			<div className="flex justify-center mt-10">
@@ -16,36 +12,67 @@ export default function Home() {
 				</h1>
 			</div>
 			<div class="grid grid-cols-4 gap-20 mx-20 mt-24">
-				<div>
-					<Loading src={"cab.avif"} />
+				<motion.div
+					initial={{ scale: 0.2 }}
+					animate={{ scale: 1 }}
+					transition={{ duration: 0.3 }}>
+					<img
+						className={`h-40 max-w-full rounded-lg `}
+						src="cab.avif"
+						alt=""
+						loading="lazy"
+					/>
 					<div className="flex justify-center mt-2 ">
 						<h1>Wanna take a ride?</h1>
 					</div>
-				</div>
-				<div
-					onClick={() => {
-						router.push("/Services/Shuttle");
-					}}>
-					<Loading src={"shuttle.jpeg"} type={1} />
+				</motion.div>
+				<Link href="/Services/Shuttle">
+					<motion.div
+						initial={{ scale: 0.2 }}
+						animate={{ scale: 1 }}
+						transition={{ duration: 0.3 }}>
+						<img
+							className={`h-40 max-w-full rounded-lg `}
+							src="shuttle.jpeg"
+							alt=""
+							loading="lazy"
+						/>
 
-					<div className="flex justify-center mt-2 ">
-						<h1>Late for office?</h1>
-					</div>
-				</div>
-				<div>
-					<Loading src={"rent.jpeg"} type={1} />
+						<div className="flex justify-center mt-2 ">
+							<h1>Late for office?</h1>
+						</div>
+					</motion.div>
+				</Link>
+				<motion.div
+					initial={{ scale: 0.2 }}
+					animate={{ scale: 1 }}
+					transition={{ duration: 0.3 }}>
+					<img
+						className={`h-40 max-w-full rounded-lg `}
+						src="rent.jpeg"
+						alt=""
+						loading="lazy"
+					/>
 
 					<div className="flex justify-center mt-2 ">
 						<h1>Going for trip?</h1>
 					</div>
-				</div>
-				<div>
-					<Loading src={"cour.png"} type={1} />
+				</motion.div>
+				<motion.div
+					initial={{ scale: 0.2 }}
+					animate={{ scale: 1 }}
+					transition={{ duration: 0.3 }}>
+					<img
+						className={`h-40 max-w-full rounded-lg `}
+						src="cour.png"
+						alt=""
+						loading="lazy"
+					/>
 
 					<div className="flex justify-center mt-2 ">
 						<h1>Want to send someone gift?</h1>
 					</div>
-				</div>
+				</motion.div>
 			</div>
 
 			<section class=" mt-10 mx-20">

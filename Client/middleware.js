@@ -7,10 +7,7 @@ const auth = async (token) => {
 		return cache.get(token);
 	}
 
-
-
 	return new Promise((resolve, reject) => {
-		
 		fetch("http://localhost:3000/api/Verify", {
 			method: "POST",
 			headers: {
@@ -31,19 +28,17 @@ const auth = async (token) => {
 	});
 };
 
-
-
 export async function middleware(request) {
 	const path = request.nextUrl.pathname;
 	let user = false;
 	let role = null;
 
 	const tokenCookie = request.cookies.get("Token");
-	
+
 	if (tokenCookie) {
 		try {
 			const res = await auth(tokenCookie.value);
-			
+
 			user = res.user;
 			role = res.role;
 		} catch (error) {
@@ -91,7 +86,15 @@ export async function middleware(request) {
 				return NextResponse.redirect(new URL("/", request.url));
 			}
 		}
-	} else if (path == "/Signin/Driver") {
+	} else if (path == "/Signin/Shuttle_Driver_login") {
+		if (user) {
+			if (role != "Rider") {
+				return NextResponse.redirect(new URL(`/${role}_Driver`, request.url));
+			} else {
+				return NextResponse.redirect(new URL("/", request.url));
+			}
+		}
+	} else if (path == "/Signin/Shuttle_Driver_Registration") {
 		if (user) {
 			if (role != "Rider") {
 				return NextResponse.redirect(new URL(`/${role}_Driver`, request.url));
@@ -106,12 +109,6 @@ export async function middleware(request) {
 			}
 		} else {
 			return NextResponse.redirect(new URL(`/`, request.url));
-		}
-	} else if (path == "/Driver_Form") {
-		if (user) {
-			if (role == "Rider") {
-				return NextResponse.redirect(new URL(`/`, request.url));
-			}
 		}
 	}
 }

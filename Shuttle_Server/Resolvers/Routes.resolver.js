@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 const Shuttle_resolver = {
 	Query: {
 		getShuttle: async (parent, args, { req, res }) => {
+			
 			try {
 				const nearestSpot = await prisma.$queryRaw`
 				    SELECT "Stopage_id",
